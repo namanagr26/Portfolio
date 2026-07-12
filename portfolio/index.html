@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Naman Agarwal — Builder of live systems</title>
+<meta name="description" content="Naman Agarwal — CSE student building AI/ML pipelines and live sports data dashboards." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#10161d;
+    --panel:#161e26;
+    --panel-2:#1a232c;
+    --line:#2a3541;
+    --line-soft:#212b34;
+    --amber:#f2a93b;
+    --amber-dim:#a8783055;
+    --green:#3fc98a;
+    --text:#e9edf1;
+    --text-dim:#8a97a3;
+    --text-faint:#5c6773;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001s !important; animation-iteration-count:1 !important; transition-duration:0.001s !important;}
+  }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .display{font-family:'Oswald', sans-serif; text-transform:uppercase; letter-spacing:0.02em;}
+
+  ::selection{background:var(--amber); color:#10161d;}
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--green);
+    outline-offset:3px;
+  }
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(16,22,29,0.88);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    max-width:1120px; margin:0 auto;
+  }
+  .logo{
+    font-family:'Oswald', sans-serif;
+    font-weight:600; font-size:18px; letter-spacing:0.06em;
+    text-decoration:none; color:var(--text);
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo .dot{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2s infinite;}
+  @keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:0.35;}
+  }
+  nav.links{display:flex; gap:28px; font-family:'IBM Plex Mono', monospace; font-size:13px;}
+  nav.links a{text-decoration:none; color:var(--text-dim); transition:color .15s ease; letter-spacing:0.03em;}
+  nav.links a:hover{color:var(--amber);}
+  .nav-toggle{display:none; background:none; border:1px solid var(--line); color:var(--text); padding:8px 10px; font-family:'IBM Plex Mono',monospace; cursor:pointer;}
+
+  /* ---------- TICKER ---------- */
+  .ticker{
+    border-bottom:1px solid var(--line-soft);
+    background:var(--panel);
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .ticker-track{
+    display:inline-flex;
+    animation:scroll 32s linear infinite;
+    padding:9px 0;
+  }
+  @keyframes scroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+  .ticker-item{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--text-dim);
+    padding:0 22px;
+    display:inline-flex; align-items:center; gap:10px;
+    border-right:1px solid var(--line-soft);
+  }
+  .ticker-item .val{color:var(--amber); font-weight:600;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:88px 0 72px;
+    border-bottom:1px solid var(--line-soft);
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--green);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:"●"; font-size:9px;}
+  h1.hero-title{
+    font-family:'Oswald', sans-serif;
+    font-weight:600;
+    font-size:clamp(34px, 5.2vw, 62px);
+    line-height:1.08;
+    letter-spacing:0.005em;
+    margin:0 0 26px;
+    max-width:920px;
+    text-transform:none;
+  }
+  h1.hero-title .accent{color:var(--amber);}
+  .hero-sub{
+    color:var(--text-dim);
+    font-size:17px;
+    max-width:640px;
+    margin:0 0 40px;
+  }
+  .hero-cta{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.03em;
+    padding:13px 22px;
+    text-decoration:none;
+    border-radius:var(--radius);
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+    border:1px solid var(--line);
+  }
+  .btn-primary{background:var(--amber); color:#151109; border-color:var(--amber); font-weight:600;}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 6px 18px -6px var(--amber-dim);}
+  .btn-ghost{color:var(--text); background:transparent;}
+  .btn-ghost:hover{border-color:var(--green); color:var(--green); transform:translateY(-2px);}
+
+  /* ---------- SECTION SCAFFOLDING ---------- */
+  section{padding:76px 0; border-bottom:1px solid var(--line-soft);}
+  section:last-of-type{border-bottom:none;}
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:40px; flex-wrap:wrap; gap:12px;
+  }
+  .section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px; color:var(--text-faint);
+    letter-spacing:0.1em; text-transform:uppercase;
+  }
+  h2.section-title{
+    font-family:'Oswald', sans-serif;
+    font-size:clamp(24px, 3vw, 34px);
+    font-weight:600;
+    margin:6px 0 0;
+    text-transform:none;
+  }
+
+  /* ---------- LIVE BOARD (dashboards) ---------- */
+  .board-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;}
+  .board-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+    position:relative;
+    transition:border-color .18s ease, transform .18s ease;
+    text-decoration:none;
+    color:var(--text);
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .board-card:hover{border-color:var(--green); transform:translateY(-4px);}
+  .board-card::before, .board-card::after{
+    content:""; position:absolute; width:10px; height:10px;
+    border-color:var(--line); border-style:solid; opacity:0.7;
+  }
+  .board-card::before{top:-1px; left:-1px; border-width:1px 0 0 1px;}
+  .board-card::after{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
+  .board-top{display:flex; justify-content:space-between; align-items:flex-start;}
+  .live-badge{
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+    color:var(--green); display:flex; align-items:center; gap:6px;
+    letter-spacing:0.08em;
+  }
+  .live-badge .d{width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.6s infinite;}
+  .board-index{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint);}
+  .board-name{font-family:'Oswald', sans-serif; font-size:22px; font-weight:600; margin:0;}
+  .board-tag{color:var(--text-dim); font-size:14.5px; margin:0;}
+  .board-stack{
+    display:flex; flex-wrap:wrap; gap:6px; margin-top:auto;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+    color:var(--text-dim); border:1px solid var(--line);
+    padding:4px 9px; border-radius:20px;
+  }
+  .board-link{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+    color:var(--amber); margin-top:6px; display:flex; align-items:center; gap:6px;
+  }
+
+  /* ---------- ACADEMIC PROJECTS ---------- */
+  .proj-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:18px;}
+  .proj-card{
+    background:var(--panel-2); border:1px solid var(--line-soft);
+    padding:26px; border-radius:var(--radius);
+  }
+  .proj-top{display:flex; justify-content:space-between; gap:12px; margin-bottom:10px;}
+  .proj-name{font-family:'Oswald', sans-serif; font-weight:600; font-size:19px; margin:0;}
+  .proj-year{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-faint); white-space:nowrap;}
+  .proj-stack{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--green); margin:0 0 14px;}
+  .proj-list{margin:0; padding-left:18px; color:var(--text-dim); font-size:14.5px;}
+  .proj-list li{margin-bottom:7px;}
+  .proj-list li::marker{color:var(--text-faint);}
+
+  /* ---------- STACK / SKILLS ---------- */
+  .stack-table{width:100%; border-collapse:collapse;}
+  .stack-table tr{border-top:1px solid var(--line-soft);}
+  .stack-table tr:first-child{border-top:none;}
+  .stack-table td{padding:16px 0; vertical-align:top;}
+  .stack-table td.k{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+    color:var(--text-faint); text-transform:uppercase; letter-spacing:0.08em;
+    width:220px; padding-right:24px;
+  }
+  .stack-table td.v{color:var(--text); font-size:15px;}
+
+  /* ---------- CERTS ---------- */
+  .cert-list{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,1fr); gap:2px;}
+  .cert-list li{
+    font-family:'IBM Plex Mono', monospace; font-size:13.5px;
+    padding:14px 16px; border:1px solid var(--line-soft);
+    color:var(--text-dim); display:flex; justify-content:space-between; gap:10px;
+  }
+  .cert-list li span.src{color:var(--text-faint); font-size:12px;}
+  .cert-list li{align-items:center; padding:0;}
+  .cert-list a.cert-link{
+    text-decoration:none; color:var(--text-dim); display:flex; justify-content:space-between;
+    align-items:center; gap:10px; width:100%; padding:14px 16px;
+  }
+  .cert-list a.cert-link:hover{color:var(--amber);}
+  .cert-list a.cert-link:hover span.src{color:var(--amber);}
+  .cert-list li.no-link{padding:14px 16px; color:var(--text-faint);}
+  .cert-score{color:var(--green); font-family:'IBM Plex Mono', monospace; font-size:11.5px; margin-right:10px;}
+
+  /* ---------- EDUCATION ---------- */
+  .edu-item{display:flex; justify-content:space-between; gap:20px; padding:20px 0; border-top:1px solid var(--line-soft);}
+  .edu-item:first-child{border-top:none;}
+  .edu-degree{font-family:'Oswald', sans-serif; font-size:18px; font-weight:600; margin:0 0 4px;}
+  .edu-school{color:var(--text-dim); font-size:14.5px; margin:0;}
+  .edu-date{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--text-faint); white-space:nowrap;}
+
+  /* ---------- FOOTER / CONTACT ---------- */
+  footer{padding:70px 0 50px;}
+  .contact-grid{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:36px;}
+  .contact-title{
+    font-family:'Oswald', sans-serif; font-weight:600;
+    font-size:clamp(28px, 4vw, 44px); margin:0 0 18px; max-width:520px;
+  }
+  .contact-links{display:flex; flex-direction:column; gap:10px; font-family:'IBM Plex Mono', monospace; font-size:14px;}
+  .contact-links a{text-decoration:none; color:var(--text-dim); transition:color .15s ease;}
+  .contact-links a:hover{color:var(--amber);}
+  .foot-bottom{
+    margin-top:56px; padding-top:22px; border-top:1px solid var(--line-soft);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-faint);
+  }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 860px){
+    .board-grid{grid-template-columns:1fr;}
+    .proj-grid{grid-template-columns:1fr;}
+    .cert-list{grid-template-columns:1fr;}
+    .stack-table td.k{width:150px; font-size:11px;}
+    nav.links{display:none;}
+    .nav-toggle{display:block;}
+    .contact-grid{align-items:flex-start;}
+  }
+  @media (max-width: 860px){
+    nav.links.open{
+      display:flex; position:absolute; top:100%; left:0; right:0;
+      background:var(--panel); border-bottom:1px solid var(--line);
+      flex-direction:column; padding:16px 28px; gap:16px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="logo"><span class="dot"></span>NAMAN AGARWAL</a>
+    <nav class="links" id="navLinks">
+      <a href="#dashboards">Live Work</a>
+      <a href="#projects">Projects</a>
+      <a href="#stack">Stack</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="nav-toggle mono" id="navToggle" aria-label="Toggle menu">MENU</button>
+  </div>
+</header>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<main id="top">
+  <section class="hero wrap">
+    <p class="eyebrow">FINAL-YEAR CSE · SMIT, SIKKIM · BASED IN TINSUKIA, ASSAM</p>
+    <h1 class="hero-title">I train the model, then I ship the <span class="accent">live board</span> that puts it in front of real users.</h1>
+    <p class="hero-sub">Three production dashboards tracking FIFA World Cup 2026, IPL 2026, and Formula 1 — plus AI/ML systems ranging from a plant-disease diagnosis pipeline to a transformer-based audio captioning model. I own the full lifecycle: training, evaluation, and deployment.</p>
+    <div class="hero-cta">
+      <a href="#dashboards" class="btn btn-primary">See the live dashboards ↓</a>
+      <a href="assets/Naman_Agarwal_Resume.docx" class="btn btn-ghost" download>Download résumé</a>
+    </div>
+  </section>
+
+  <section id="dashboards" class="wrap reveal">
+    <div class="section-head">
+      <div>
+        <p class="section-label">01 · Independent projects</p>
+        <h2 class="section-title">Currently live</h2>
+      </div>
+      <p class="mono" style="color:var(--text-faint); font-size:13px; max-width:280px;">Deployed, public, and pulling real-time data right now.</p>
+    </div>
+    <div class="board-grid" id="boardGrid"></div>
+  </section>
+
+  <section id="projects" class="wrap reveal">
+    <div class="section-head">
+      <div>
+        <p class="section-label">02 · Academic work</p>
+        <h2 class="section-title">Models &amp; systems</h2>
+      </div>
+    </div>
+    <div class="proj-grid" id="projGrid"></div>
+  </section>
+
+  <section id="stack" class="wrap reveal">
+    <div class="section-head">
+      <div>
+        <p class="section-label">03 · Spec sheet</p>
+        <h2 class="section-title">Stack</h2>
+      </div>
+    </div>
+    <table class="stack-table" id="stackTable"></table>
+  </section>
+
+  <section id="certs" class="wrap reveal">
+    <div class="section-head">
+      <div>
+        <p class="section-label">04 · Credentials</p>
+        <h2 class="section-title">Certifications</h2>
+      </div>
+      <a href="https://drive.google.com/drive/folders/1hZy7EBAoqvCEONZk2vsjuUa9TGSYqz_b?usp=sharing" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:10px 18px; font-size:12px;">View all on Drive ↗</a>
+    </div>
+    <p class="mono" style="color:var(--text-faint); font-size:13px; margin:-24px 0 24px;">Or click any certificate below to view it individually.</p>
+    <ul class="cert-list" id="certList"></ul>
+  </section>
+
+  <section id="education" class="wrap reveal">
+    <div class="section-head">
+      <div>
+        <p class="section-label">05 · Education</p>
+        <h2 class="section-title">Background</h2>
+      </div>
+    </div>
+    <div id="eduList"></div>
+  </section>
+</main>
+
+<footer id="contact" class="wrap reveal">
+  <div class="contact-grid">
+    <div>
+      <h2 class="contact-title">Building something real-time?<br>Let's talk.</h2>
+      <p class="mono" style="color:var(--text-faint); font-size:13px;">English · Hindi · Assamese</p>
+    </div>
+    <div class="contact-links">
+      <a href="mailto:just.namanagarwal@gmail.com">just.namanagarwal@gmail.com</a>
+      <a href="tel:+918403873032">+91 84038 73032</a>
+      <a href="https://github.com/namanagr26" target="_blank" rel="noopener">github.com/namanagr26</a>
+      <a href="https://stoppageyukar1.netlify.app" target="_blank" rel="noopener">stoppageyukar1.netlify.app</a>
+      <a href="https://the-crease.netlify.app" target="_blank" rel="noopener">the-crease.netlify.app</a>
+      <a href="https://f1yukar1.netlify.app" target="_blank" rel="noopener">f1yukar1.netlify.app</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>Tinsukia, Assam 786125</span>
+    <span>© 2026 Naman Agarwal</span>
+  </div>
+</footer>
+
+<script>
+  // ---- Data ----
+  const dashboards = [
+    {
+      idx: "WC26",
+      name: "STOPPAGE",
+      tag: "FIFA World Cup 2026 dashboard — all 104 matches, group tables, knockout bracket, real-time scores.",
+      stack: ["JavaScript", "ESPN API", "Netlify"],
+      url: "https://stoppageyukar1.netlify.app"
+    },
+    {
+      idx: "IPL26",
+      name: "The Crease",
+      tag: "IPL 2026 dashboard — live countdown, squad cards, and pitch intelligence.",
+      stack: ["JavaScript", "Playwright", "Netlify"],
+      url: "https://the-crease.netlify.app"
+    },
+    {
+      idx: "F1",
+      name: "F1 Dashboard",
+      tag: "Live standings and race results, pulled from the Jolpica API.",
+      stack: ["JavaScript", "Jolpica API", "Netlify"],
+      url: "https://f1yukar1.netlify.app"
+    }
+  ];
+
+  const projects = [
+    {
+      name: "Plant Disease Diagnosis & Reporting System",
+      year: "2026 · Major Project",
+      stack: "Python · MobileNetV2 · Phi-3-mini LLM · Gradio · PlantVillage Dataset",
+      points: [
+        "Fine-tuned MobileNetV2 on PlantVillage to classify 38 plant disease categories with high accuracy.",
+        "Integrated Phi-3-mini-4k-instruct to auto-generate structured remediation reports for farmers.",
+        "Built the full pipeline from image upload to diagnosis report via a Gradio interface."
+      ]
+    },
+    {
+      name: "Automated Audio Captioning System",
+      year: "2025 · Mini Project",
+      stack: "Python · ResNet18 · BERT · Log-Mel Spectrogram · Clotho v2 · Transformer",
+      points: [
+        "Transformer encoder-decoder: ResNet18 audio encoder + frozen BERT text encoder, 250 epochs on Clotho v2 (6,972 clips, 34,860 captions).",
+        "BLEU-4: 0.35, METEOR: 0.40, ROUGE-L F1: 0.38 on 1,045 test samples — beating rule- and template-based baselines.",
+        "Owned the full pipeline: spectrogram extraction, HDF5 storage, NLTK preprocessing, beam search decoding."
+      ]
+    },
+    {
+      name: "Heart Disease Prediction System",
+      year: "2024",
+      stack: "Python · Deep Learning · UCI Hospital Dataset · Gradio",
+      points: [
+        "Trained a neural classifier on the UCI Hospital Dataset to detect cardiovascular disease risk.",
+        "Applied feature scaling and data cleaning to improve precision; deployed via Gradio for real-time output."
+      ]
+    },
+    {
+      name: "Employee Management System — Backend",
+      year: "2023",
+      stack: "Java · Spring Boot · MySQL",
+      points: [
+        "Designed a RESTful API layer and relational schema for employee records, authentication, and departments."
+      ]
+    }
+  ];
+
+  const stack = [
+    ["Languages", "Python, JavaScript, Java, C, C++, SQL"],
+    ["AI / Machine Learning", "TensorFlow, Keras, MobileNetV2, scikit-learn, Gradio, LLM integration (Phi-3, GPT-family)"],
+    ["Web & Backend", "HTML, CSS, JavaScript, Spring Boot, RESTful APIs, Netlify, ESPN API, Jolpica API"],
+    ["Data & Databases", "MySQL, Log-Mel Spectrogram, feature engineering, data cleaning & scaling"],
+    ["Tools & Practices", "Git, Playwright, Agile SDLC, VS Code"]
+  ];
+
+  const certs = [
+    { name: "Machine Learning A-Z: AI, Python and R", src: "Udemy", file: "assets/certificates/Udemy_Machine_Learning_AZ.pdf" },
+    { name: "TensorFlow for Deep Learning Bootcamp", src: "Udemy", file: "assets/certificates/Udemy_TensorFlow_Bootcamp.pdf" },
+    { name: "Mastering DSA using C and C++", src: "Udemy", file: "assets/certificates/Udemy_Mastering_DSA_C_CPP.pdf" },
+    { name: "Algorithmic Graph Theory and Data Structures", src: "NPTEL · IIT Kharagpur", file: "assets/certificates/NPTEL_Algorithmic_Graph_Theory.pdf", score: "58%" },
+    { name: "Human Computer Interaction", src: "NPTEL · IIIT Delhi · Elite", file: "assets/certificates/NPTEL_Human_Computer_Interaction.pdf", score: "90%" },
+    { name: "Responsible and Safe AI Systems", src: "NPTEL · IIIT Hyderabad", file: "assets/certificates/NPTEL_Responsible_Safe_AI_Systems.pdf", score: "56%" }
+  ];
+
+  const education = [
+    {
+      degree: "B.Tech — Computer Science & Engineering",
+      school: "Sikkim Manipal Institute of Technology, Majitar, Sikkim · Reg. No. 202200070",
+      date: "Expected July 2026"
+    },
+    {
+      degree: "Class XII — High School Diploma",
+      school: "Tinsukia English Academy, Tinsukia, Assam",
+      date: "March 2022"
+    }
+  ];
+
+  const tickerStats = [
+    ["DISEASE CLASSES", "38"], ["BLEU-4", "0.35"], ["MATCHES TRACKED", "104"],
+    ["TRAINING EPOCHS", "250"], ["LIVE DASHBOARDS", "3"], ["AUDIO CLIPS", "6,972"],
+    ["METEOR", "0.40"], ["CAPTIONS", "34,860"]
+  ];
+
+  // ---- Render ----
+  function renderTicker(){
+    const track = document.getElementById('tickerTrack');
+    const items = tickerStats.map(([label, val]) =>
+      `<span class="ticker-item">${label} <span class="val">${val}</span></span>`
+    ).join('');
+    track.innerHTML = items + items; // duplicate for seamless loop
+  }
+
+  function renderBoards(){
+    const grid = document.getElementById('boardGrid');
+    grid.innerHTML = dashboards.map(d => `
+      <a class="board-card" href="${d.url}" target="_blank" rel="noopener">
+        <div class="board-top">
+          <span class="live-badge"><span class="d"></span>LIVE</span>
+          <span class="board-index mono">${d.idx}</span>
+        </div>
+        <div>
+          <h3 class="board-name">${d.name}</h3>
+          <p class="board-tag">${d.tag}</p>
+        </div>
+        <div class="board-stack">${d.stack.map(s => `<span class="chip">${s}</span>`).join('')}</div>
+        <span class="board-link">Open dashboard →</span>
+      </a>
+    `).join('');
+  }
+
+  function renderProjects(){
+    const grid = document.getElementById('projGrid');
+    grid.innerHTML = projects.map(p => `
+      <div class="proj-card">
+        <div class="proj-top">
+          <h3 class="proj-name">${p.name}</h3>
+          <span class="proj-year mono">${p.year}</span>
+        </div>
+        <p class="proj-stack">${p.stack}</p>
+        <ul class="proj-list">${p.points.map(pt => `<li>${pt}</li>`).join('')}</ul>
+      </div>
+    `).join('');
+  }
+
+  function renderStack(){
+    const table = document.getElementById('stackTable');
+    table.innerHTML = stack.map(([k,v]) => `
+      <tr><td class="k">${k}</td><td class="v">${v}</td></tr>
+    `).join('');
+  }
+
+  function renderCerts(){
+    const list = document.getElementById('certList');
+    list.innerHTML = certs.map(c => {
+      const scoreTag = c.score ? `<span class="cert-score">${c.score}</span>` : '';
+      if (c.file) {
+        return `
+          <li>
+            <a class="cert-link" href="${c.file}" target="_blank" rel="noopener">
+              <span>${c.name} <span class="src">${c.src}</span></span>
+              ${scoreTag}
+            </a>
+          </li>`;
+      }
+      return `<li class="no-link">${c.name} <span class="src">${c.src}</span></li>`;
+    }).join('');
+  }
+
+  function renderEducation(){
+    const el = document.getElementById('eduList');
+    el.innerHTML = education.map(e => `
+      <div class="edu-item">
+        <div>
+          <p class="edu-degree">${e.degree}</p>
+          <p class="edu-school">${e.school}</p>
+        </div>
+        <span class="edu-date">${e.date}</span>
+      </div>
+    `).join('');
+  }
+
+  renderTicker();
+  renderBoards();
+  renderProjects();
+  renderStack();
+  renderCerts();
+  renderEducation();
+
+  // ---- Mobile nav ----
+  document.getElementById('navToggle').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+  document.querySelectorAll('.links a').forEach(a => a.addEventListener('click', () => {
+    document.getElementById('navLinks').classList.remove('open');
+  }));
+
+  // ---- Scroll reveal ----
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+</script>
+</body>
+</html>
