@@ -3,336 +3,356 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Naman Agarwal — Builder of live systems</title>
-<meta name="description" content="Naman Agarwal — CSE student building AI/ML pipelines and live sports data dashboards." />
+<title>Naman Agarwal — I ship the live board, not just the model</title>
+<meta name="description" content="Naman Agarwal — CSE (AI/ML) graduate building AI/ML pipelines and three live sports data dashboards, end to end: training, evaluation, deployment." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#10161d;
-    --panel:#161e26;
-    --panel-2:#1a232c;
-    --line:#2a3541;
-    --line-soft:#212b34;
-    --amber:#f2a93b;
-    --amber-dim:#a8783055;
-    --green:#3fc98a;
-    --text:#e9edf1;
-    --text-dim:#8a97a3;
-    --text-faint:#5c6773;
-    --radius:2px;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  @media (prefers-reduced-motion: reduce){
-    html{scroll-behavior:auto;}
-    *{animation-duration:0.001s !important; animation-iteration-count:1 !important; transition-duration:0.001s !important;}
-  }
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:'IBM Plex Sans', sans-serif;
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  a{color:inherit;}
-  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
-  .mono{font-family:'IBM Plex Mono', monospace;}
-  .display{font-family:'Oswald', sans-serif; text-transform:uppercase; letter-spacing:0.02em;}
+/* Rebuild notes — macrostructure: Workbench (dashboards as the guided tour)
+   nav: N3 side-rail · footer: Ft6 letter-close · theme: Almanac-derived
+   (light, technical, single blue accent; green reserved for live-status only) */
 
-  ::selection{background:var(--amber); color:#10161d;}
+:root{
+  --paper:      oklch(16% 0.022 250);
+  --paper-2:    oklch(21% 0.024 250);
+  --paper-3:    oklch(26% 0.026 250);
+  --rule:       oklch(33% 0.024 245);
+  --rule-2:     oklch(46% 0.022 240);
+  --muted:      oklch(66% 0.020 235);
+  --faint:      oklch(52% 0.018 235);
+  --ink-2:      oklch(88% 0.012 230);
+  --ink:        oklch(96% 0.008 230);
+  --accent:     oklch(74% 0.15 220);
+  --accent-ink: oklch(78% 0.15 220);
+  --live:       oklch(72% 0.16 152);
 
-  a:focus-visible, button:focus-visible{
-    outline:2px solid var(--green);
-    outline-offset:3px;
-  }
+  --font-display:'Newsreader', Georgia, serif;
+  --font-body:   'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:   'IBM Plex Mono', ui-monospace, monospace;
 
-  /* ---------- NAV ---------- */
-  header.nav{
-    position:sticky; top:0; z-index:50;
-    background:rgba(16,22,29,0.88);
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line-soft);
-  }
-  .nav-inner{
+  --rail-w: 68px;
+  --radius: 3px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; overflow-x:clip;}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{animation-duration:0.001s !important; animation-iteration-count:1 !important; transition-duration:0.001s !important;}
+}
+body{
+  margin:0; overflow-x:clip;
+  background:var(--paper); color:var(--ink);
+  font-family:var(--font-body);
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+  font-size:16px;
+}
+a{color:inherit;}
+img,svg{max-width:100%; display:block;}
+.mono{font-family:var(--font-mono);}
+.wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+::selection{background:var(--accent); color:var(--paper);}
+a:focus-visible, button:focus-visible{outline:2px solid var(--accent-ink); outline-offset:3px;}
+.skip-link{
+  position:absolute; left:-999px; top:auto;
+  background:var(--ink); color:var(--paper); padding:12px 18px;
+  font-family:var(--font-mono); font-size:13px; z-index:1000;
+}
+.skip-link:focus{left:16px; top:16px;}
+
+/* ---------- SIDE RAIL (N3) ---------- */
+.rail{
+  position:fixed; left:0; top:0; bottom:0; width:var(--rail-w);
+  border-right:1px solid var(--rule);
+  background:var(--paper-2);
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:space-between;
+  padding:22px 0; z-index:200;
+}
+.rail-mark{
+  writing-mode:vertical-rl; text-orientation:mixed; transform:rotate(180deg);
+  font-family:var(--font-mono); font-size:12.5px; font-weight:600;
+  letter-spacing:0.16em; text-decoration:none; color:var(--ink);
+  display:flex; align-items:center; gap:8px; padding-bottom:6px;
+}
+.rail-mark .d{width:6px; height:6px; border-radius:50%; background:var(--live); box-shadow:0 0 6px var(--live); animation:pulse 2s infinite; flex:none;}
+@keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.3;}}
+.rail-dots{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:22px; align-items:center;}
+.rail-dots a{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  text-decoration:none; color:var(--faint);
+}
+.rail-dots .n{font-family:var(--font-mono); font-size:10px; letter-spacing:0.04em;}
+.rail-dots .dot{width:7px; height:7px; border:1px solid var(--rule-2); border-radius:50%; transition:background .15s ease, border-color .15s ease;}
+.rail-dots a:hover .dot, .rail-dots a.active .dot{background:var(--accent); border-color:var(--accent);}
+.rail-dots a:hover, .rail-dots a.active{color:var(--accent-ink);}
+.rail-foot{font-family:var(--font-mono); font-size:10px; color:var(--faint); writing-mode:vertical-rl; text-orientation:mixed;}
+
+/* mobile top bar replacement for the rail */
+.topbar{display:none;}
+@media (max-width: 860px){
+  .rail{display:none;}
+  .topbar{
     display:flex; align-items:center; justify-content:space-between;
-    padding:16px 28px;
-    max-width:1120px; margin:0 auto;
+    position:sticky; top:0; z-index:200;
+    background:color-mix(in oklch, var(--paper) 90%, transparent); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--rule);
+    padding:14px 20px;
   }
-  .logo{
-    font-family:'Oswald', sans-serif;
-    font-weight:600; font-size:18px; letter-spacing:0.06em;
-    text-decoration:none; color:var(--text);
-    display:flex; align-items:center; gap:8px;
+  .topbar .wordmark{
+    font-family:var(--font-mono); font-weight:600; font-size:14px; letter-spacing:0.08em;
+    text-decoration:none; color:var(--ink); display:flex; align-items:center; gap:8px;
   }
-  .logo .dot{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2s infinite;}
-  @keyframes pulse{
-    0%,100%{opacity:1;}
-    50%{opacity:0.35;}
+  .topbar .wordmark .d{width:6px; height:6px; border-radius:50%; background:var(--live); animation:pulse 2s infinite; flex:none;}
+  .topbar button{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.04em;
+    background:none; border:1px solid var(--rule-2); color:var(--ink);
+    padding:8px 12px; cursor:pointer; border-radius:var(--radius);
   }
-  nav.links{display:flex; gap:28px; font-family:'IBM Plex Mono', monospace; font-size:13px;}
-  nav.links a{text-decoration:none; color:var(--text-dim); transition:color .15s ease; letter-spacing:0.03em;}
-  nav.links a:hover{color:var(--amber);}
-  .nav-toggle{display:none; background:none; border:1px solid var(--line); color:var(--text); padding:8px 10px; font-family:'IBM Plex Mono',monospace; cursor:pointer;}
+  .topbar-menu{
+    display:none; position:sticky; top:49px; z-index:199;
+    background:var(--paper); border-bottom:1px solid var(--rule);
+    padding:6px 20px 16px; flex-direction:column;
+  }
+  .topbar-menu.open{display:flex;}
+  .topbar-menu a{
+    text-decoration:none; color:var(--muted); font-family:var(--font-mono);
+    font-size:13px; padding:12px 0; border-top:1px solid var(--rule);
+  }
+  .topbar-menu a:first-child{border-top:none;}
+}
 
-  /* ---------- TICKER ---------- */
-  .ticker{
-    border-bottom:1px solid var(--line-soft);
-    background:var(--panel);
-    overflow:hidden;
-    white-space:nowrap;
-  }
-  .ticker-track{
-    display:inline-flex;
-    animation:scroll 32s linear infinite;
-    padding:9px 0;
-  }
-  @keyframes scroll{
-    from{transform:translateX(0);}
-    to{transform:translateX(-50%);}
-  }
-  .ticker-item{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12.5px;
-    color:var(--text-dim);
-    padding:0 22px;
-    display:inline-flex; align-items:center; gap:10px;
-    border-right:1px solid var(--line-soft);
-  }
-  .ticker-item .val{color:var(--amber); font-weight:600;}
+main{margin-left:var(--rail-w);}
+@media (max-width: 860px){ main{margin-left:0;} }
 
-  /* ---------- HERO ---------- */
-  .hero{
-    padding:88px 0 72px;
-    border-bottom:1px solid var(--line-soft);
-    position:relative;
-  }
-  .eyebrow{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12.5px;
-    color:var(--green);
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    margin-bottom:22px;
-    display:flex; align-items:center; gap:10px;
-  }
-  .eyebrow::before{content:"●"; font-size:9px;}
-  h1.hero-title{
-    font-family:'Oswald', sans-serif;
-    font-weight:600;
-    font-size:clamp(34px, 5.2vw, 62px);
-    line-height:1.08;
-    letter-spacing:0.005em;
-    margin:0 0 26px;
-    max-width:920px;
-    text-transform:none;
-  }
-  h1.hero-title .accent{color:var(--amber);}
-  .hero-sub{
-    color:var(--text-dim);
-    font-size:17px;
-    max-width:640px;
-    margin:0 0 40px;
-  }
-  .hero-cta{display:flex; gap:14px; flex-wrap:wrap;}
-  .btn{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:13px;
-    letter-spacing:0.03em;
-    padding:13px 22px;
-    text-decoration:none;
-    border-radius:var(--radius);
-    display:inline-flex; align-items:center; gap:8px;
-    transition:transform .15s ease, border-color .15s ease, background .15s ease;
-    border:1px solid var(--line);
-  }
-  .btn-primary{background:var(--amber); color:#151109; border-color:var(--amber); font-weight:600;}
-  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 6px 18px -6px var(--amber-dim);}
-  .btn-ghost{color:var(--text); background:transparent;}
-  .btn-ghost:hover{border-color:var(--green); color:var(--green); transform:translateY(-2px);}
+/* ---------- TICKER ---------- */
+.ticker{border-bottom:1px solid var(--rule); background:var(--paper-2); overflow:hidden; white-space:nowrap;}
+.ticker-track{display:inline-flex; animation:scroll 34s linear infinite; padding:9px 0;}
+@keyframes scroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+.ticker-item{
+  font-family:var(--font-mono); font-size:12px; color:var(--muted);
+  padding:0 20px; display:inline-flex; align-items:center; gap:9px;
+  border-right:1px solid var(--rule);
+}
+.ticker-item .val{color:var(--accent-ink); font-weight:600;}
 
-  /* ---------- SECTION SCAFFOLDING ---------- */
-  section{padding:76px 0; border-bottom:1px solid var(--line-soft);}
-  section:last-of-type{border-bottom:none;}
-  .section-head{
-    display:flex; align-items:baseline; justify-content:space-between;
-    margin-bottom:40px; flex-wrap:wrap; gap:12px;
-  }
-  .section-label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12.5px; color:var(--text-faint);
-    letter-spacing:0.1em; text-transform:uppercase;
-  }
-  h2.section-title{
-    font-family:'Oswald', sans-serif;
-    font-size:clamp(24px, 3vw, 34px);
-    font-weight:600;
-    margin:6px 0 0;
-    text-transform:none;
-  }
+/* ---------- HERO (Workbench: quiet, functional heading) ---------- */
+.hero{padding:64px 0 56px; border-bottom:1px solid var(--rule);}
+.eyebrow{
+  font-family:var(--font-mono); font-size:12px; color:var(--muted);
+  letter-spacing:0.1em; text-transform:uppercase; margin:0 0 20px;
+  display:flex; align-items:center; gap:9px;
+}
+.eyebrow::before{content:"01 /"; color:var(--faint);}
+h1.hero-title{
+  font-family:var(--font-display); font-weight:500; font-style:normal;
+  font-size:clamp(28px, 4.4vw, 48px);
+  line-height:1.16; letter-spacing:-0.01em;
+  margin:0 0 24px; max-width:820px;
+  overflow-wrap:anywhere;
+}
+h1.hero-title .accent{color:var(--accent-ink); font-weight:600;}
+.hero-sub{color:var(--muted); font-size:16.5px; max-width:600px; margin:0 0 36px;}
+.hero-cta{display:flex; gap:12px; flex-wrap:wrap;}
+.btn{
+  font-family:var(--font-mono); font-size:13px; letter-spacing:0.02em;
+  padding:13px 20px; text-decoration:none; border-radius:var(--radius);
+  display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  border:1px solid var(--rule-2);
+}
+.btn-primary{background:var(--accent); color:var(--paper); border-color:var(--accent); font-weight:600;}
+.btn-primary:hover{transform:translateY(-2px); background:var(--accent-ink);}
+.btn-ghost{color:var(--ink); background:transparent;}
+.btn-ghost:hover{border-color:var(--accent-ink); color:var(--accent-ink); transform:translateY(-2px);}
 
-  /* ---------- LIVE BOARD (dashboards) ---------- */
-  .board-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;}
-  .board-card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:22px;
-    position:relative;
-    transition:border-color .18s ease, transform .18s ease;
-    text-decoration:none;
-    color:var(--text);
-    display:flex; flex-direction:column; gap:14px;
-  }
-  .board-card:hover{border-color:var(--green); transform:translateY(-4px);}
-  .board-card::before, .board-card::after{
-    content:""; position:absolute; width:10px; height:10px;
-    border-color:var(--line); border-style:solid; opacity:0.7;
-  }
-  .board-card::before{top:-1px; left:-1px; border-width:1px 0 0 1px;}
-  .board-card::after{bottom:-1px; right:-1px; border-width:0 1px 1px 0;}
-  .board-top{display:flex; justify-content:space-between; align-items:flex-start;}
-  .live-badge{
-    font-family:'IBM Plex Mono', monospace; font-size:11px;
-    color:var(--green); display:flex; align-items:center; gap:6px;
-    letter-spacing:0.08em;
-  }
-  .live-badge .d{width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.6s infinite;}
-  .board-index{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint);}
-  .board-name{font-family:'Oswald', sans-serif; font-size:22px; font-weight:600; margin:0;}
-  .board-tag{color:var(--text-dim); font-size:14.5px; margin:0;}
-  .board-stack{
-    display:flex; flex-wrap:wrap; gap:6px; margin-top:auto;
-  }
-  .chip{
-    font-family:'IBM Plex Mono', monospace; font-size:11px;
-    color:var(--text-dim); border:1px solid var(--line);
-    padding:4px 9px; border-radius:20px;
-  }
-  .board-link{
-    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
-    color:var(--amber); margin-top:6px; display:flex; align-items:center; gap:6px;
-  }
+/* ---------- SECTION SCAFFOLDING ---------- */
+section{padding:64px 0; border-bottom:1px solid var(--rule);}
+section:last-of-type{border-bottom:none;}
+.section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:10px;}
+.section-label{font-family:var(--font-mono); font-size:12px; color:var(--faint); letter-spacing:0.08em; text-transform:uppercase;}
+h2.section-title{font-family:var(--font-display); font-weight:500; font-size:clamp(22px, 2.6vw, 30px); margin:6px 0 0; letter-spacing:-0.005em;}
+.section-note{font-family:var(--font-mono); color:var(--faint); font-size:12.5px; max-width:280px; margin:0;}
 
-  /* ---------- ACADEMIC PROJECTS ---------- */
-  .proj-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:18px;}
-  .proj-card{
-    background:var(--panel-2); border:1px solid var(--line-soft);
-    padding:26px; border-radius:var(--radius);
-  }
-  .proj-top{display:flex; justify-content:space-between; gap:12px; margin-bottom:10px;}
-  .proj-name{font-family:'Oswald', sans-serif; font-weight:600; font-size:19px; margin:0;}
-  .proj-year{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-faint); white-space:nowrap;}
-  .proj-stack{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--green); margin:0 0 14px;}
-  .proj-list{margin:0; padding-left:18px; color:var(--text-dim); font-size:14.5px;}
-  .proj-list li{margin-bottom:7px;}
-  .proj-list li::marker{color:var(--text-faint);}
+/* ---------- WORKBENCH: LIVE BOARDS ---------- */
+.board-list{display:flex; flex-direction:column; gap:0;}
+.board-row{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+  gap:34px; padding:34px 0; border-top:1px solid var(--rule);
+  align-items:center;
+}
+.board-row:first-child{border-top:none;}
+.board-row:nth-child(even) .board-frame{order:2;}
+.board-copy{display:flex; flex-direction:column; gap:14px; min-width:0;}
+.board-top{display:flex; align-items:center; gap:12px;}
+.live-badge{
+  font-family:var(--font-mono); font-size:11px; color:var(--live);
+  display:flex; align-items:center; gap:6px; letter-spacing:0.06em;
+  border:1px solid var(--live); padding:3px 8px; border-radius:20px;
+}
+.live-badge .d{width:6px; height:6px; border-radius:50%; background:var(--live); animation:pulse 1.6s infinite; flex:none;}
+.board-idx{font-family:var(--font-mono); font-size:11px; color:var(--faint);}
+.board-name{font-family:var(--font-display); font-size:24px; font-weight:600; margin:0;}
+.board-tag{color:var(--muted); font-size:14.5px; margin:0; max-width:44ch;}
+.board-stack{display:flex; flex-wrap:wrap; gap:6px;}
+.chip{font-family:var(--font-mono); font-size:11px; color:var(--muted); border:1px solid var(--rule-2); padding:4px 9px; border-radius:20px;}
+.board-link{font-family:var(--font-mono); font-size:12.5px; color:var(--accent-ink); text-decoration:none; display:inline-flex; align-items:center; gap:6px; width:fit-content;}
+.board-link:hover{text-decoration:underline;}
+.board-frame{
+  border:1px solid var(--rule-2); border-radius:var(--radius); background:var(--paper-2);
+  padding:16px; min-width:0; aspect-ratio:16/10;
+}
+.board-frame svg{width:100%; height:100%;}
+.board-frame-cap{font-family:var(--font-mono); font-size:10.5px; color:var(--faint); margin-top:8px; letter-spacing:0.03em;}
 
-  /* ---------- STACK / SKILLS ---------- */
-  .stack-table{width:100%; border-collapse:collapse;}
-  .stack-table tr{border-top:1px solid var(--line-soft);}
-  .stack-table tr:first-child{border-top:none;}
-  .stack-table td{padding:16px 0; vertical-align:top;}
-  .stack-table td.k{
-    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
-    color:var(--text-faint); text-transform:uppercase; letter-spacing:0.08em;
-    width:220px; padding-right:24px;
-  }
-  .stack-table td.v{color:var(--text); font-size:15px;}
+@media (max-width: 760px){
+  .board-row{grid-template-columns:1fr; gap:18px;}
+  .board-row:nth-child(even) .board-frame{order:0;}
+}
 
-  /* ---------- CERTS ---------- */
-  .cert-list{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,1fr); gap:2px;}
-  .cert-list li{
-    font-family:'IBM Plex Mono', monospace; font-size:13.5px;
-    padding:14px 16px; border:1px solid var(--line-soft);
-    color:var(--text-dim); display:flex; justify-content:space-between; gap:10px;
-  }
-  .cert-list li span.src{color:var(--text-faint); font-size:12px;}
-  .cert-list li{align-items:center; padding:0;}
-  .cert-list a.cert-link{
-    text-decoration:none; color:var(--text-dim); display:flex; justify-content:space-between;
-    align-items:center; gap:10px; width:100%; padding:14px 16px;
-  }
-  .cert-list a.cert-link:hover{color:var(--amber);}
-  .cert-list a.cert-link:hover span.src{color:var(--amber);}
-  .cert-list li.no-link{padding:14px 16px; color:var(--text-faint);}
-  .cert-score{color:var(--green); font-family:'IBM Plex Mono', monospace; font-size:11.5px; margin-right:10px;}
+/* ---------- ACADEMIC PROJECTS (spec-sheet) ---------- */
+.proj-list{display:flex; flex-direction:column; gap:0;}
+.proj-block{border-top:1px solid var(--rule); padding:32px 0; display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:30px;}
+.proj-block:first-child{border-top:none;}
+.proj-top{display:flex; justify-content:space-between; gap:12px; margin-bottom:8px;}
+.proj-name{font-family:var(--font-display); font-weight:600; font-size:19px; margin:0; overflow-wrap:anywhere;}
+.proj-year{font-family:var(--font-mono); font-size:11.5px; color:var(--faint); white-space:nowrap;}
+.proj-stack{font-family:var(--font-mono); font-size:11.5px; color:var(--accent-ink); margin:0 0 14px;}
+.proj-narrative{color:var(--muted); font-size:14px; margin:0;}
+.spec-sheet{width:100%; border-collapse:collapse;}
+.spec-sheet tr{border-top:1px solid var(--rule);}
+.spec-sheet tr:first-child{border-top:none;}
+.spec-sheet td{padding:10px 0; font-size:13px; vertical-align:top; font-variant-numeric:tabular-nums;}
+.spec-sheet td.k{color:var(--faint); font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:0.04em; width:44%; padding-right:14px;}
+.spec-sheet td.v{color:var(--ink-2); font-family:var(--font-mono);}
+@media (max-width:760px){ .proj-block{grid-template-columns:1fr;} }
 
-  /* ---------- EDUCATION ---------- */
-  .edu-item{display:flex; justify-content:space-between; gap:20px; padding:20px 0; border-top:1px solid var(--line-soft);}
-  .edu-item:first-child{border-top:none;}
-  .edu-degree{font-family:'Oswald', sans-serif; font-size:18px; font-weight:600; margin:0 0 4px;}
-  .edu-school{color:var(--text-dim); font-size:14.5px; margin:0;}
-  .edu-date{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--text-faint); white-space:nowrap;}
+/* ---------- STACK ---------- */
+.stack-table{width:100%; border-collapse:collapse;}
+.stack-table tr{border-top:1px solid var(--rule);}
+.stack-table tr:first-child{border-top:none;}
+.stack-table td{padding:16px 0; vertical-align:top;}
+.stack-table td.k{font-family:var(--font-mono); font-size:11.5px; color:var(--faint); text-transform:uppercase; letter-spacing:0.06em; width:220px; padding-right:24px;}
+.stack-table td.v{color:var(--ink-2); font-size:14.5px;}
+@media (max-width:760px){ .stack-table td.k{width:120px; font-size:10.5px;} .stack-table{display:block;} .stack-table tr{display:block; padding:14px 0;} .stack-table td{display:block; padding:2px 0; width:auto !important;} }
 
-  /* ---------- FOOTER / CONTACT ---------- */
-  footer{padding:70px 0 50px;}
-  .contact-grid{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:36px;}
-  .contact-title{
-    font-family:'Oswald', sans-serif; font-weight:600;
-    font-size:clamp(28px, 4vw, 44px); margin:0 0 18px; max-width:520px;
-  }
-  .contact-links{display:flex; flex-direction:column; gap:10px; font-family:'IBM Plex Mono', monospace; font-size:14px;}
-  .contact-links a{text-decoration:none; color:var(--text-dim); transition:color .15s ease;}
-  .contact-links a:hover{color:var(--amber);}
-  .foot-bottom{
-    margin-top:56px; padding-top:22px; border-top:1px solid var(--line-soft);
-    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
-    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-faint);
-  }
+/* ---------- FOCUS / RADAR ---------- */
+.radar-wrap{display:flex; justify-content:center; padding:8px 0;}
+#skillRadar{width:100%; max-width:580px; height:auto;}
+.radar-label{font-family:var(--font-mono); font-size:10.5px; fill:var(--faint); text-transform:uppercase; letter-spacing:0.05em;}
+.radar-value{font-family:var(--font-mono); font-size:12.5px; font-weight:600; fill:var(--accent-ink);}
 
-  /* ---------- REVEAL ---------- */
-  .reveal{opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s ease;}
-  .reveal.in{opacity:1; transform:translateY(0);}
+/* ---------- CERTS ---------- */
+.cert-list{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 24px;}
+.cert-list li{border-top:1px solid var(--rule);}
+.cert-list li:nth-child(1), .cert-list li:nth-child(2){border-top:none;}
+.cert-list a.cert-link{
+  text-decoration:none; color:var(--ink-2); display:flex; justify-content:space-between;
+  align-items:center; gap:10px; width:100%; padding:14px 0; font-family:var(--font-mono); font-size:13px;
+}
+.cert-list a.cert-link:hover{color:var(--accent-ink);}
+.cert-list li.no-link{padding:14px 0; color:var(--ink-2); font-family:var(--font-mono); font-size:13px; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+.cert-list li.no-link .tag{font-family:var(--font-mono); font-size:10.5px; color:var(--faint); border:1px solid var(--rule-2); padding:3px 8px; border-radius:20px; white-space:nowrap;}
+.cert-list .src{color:var(--faint); font-size:11.5px; display:block; margin-top:2px;}
+.cert-list .cert-score{color:var(--live); font-family:var(--font-mono); font-size:11px; white-space:nowrap;}
+.cert-group-item{grid-column:1 / -1;}
+.cert-group-toggle{
+  width:100%; display:flex; justify-content:space-between; align-items:center; gap:14px;
+  padding:14px 0; background:none; border:none; cursor:pointer; text-align:left;
+  color:var(--ink-2); font-family:var(--font-mono); font-size:13px;
+}
+.cert-group-toggle:hover{color:var(--accent-ink);}
+.cert-group-toggle:hover .src{color:var(--accent-ink);}
+.cert-group-toggle .chev{color:var(--faint); font-size:15px; line-height:1; transition:transform .18s ease; flex:none;}
+.cert-group-toggle[aria-expanded="true"] .chev{transform:rotate(45deg); color:var(--accent-ink);}
+.cert-sublist{
+  list-style:none; margin:0; padding:0; max-height:0; overflow:hidden;
+  transition:max-height .28s ease;
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 24px;
+}
+.cert-sublist.open{max-height:640px; padding-bottom:8px;}
+.cert-sublist li{border-top:1px solid var(--rule);}
+.cert-sublist li:nth-child(1), .cert-sublist li:nth-child(2){border-top:none;}
+.cert-sublink{display:block; padding:9px 0; text-decoration:none; color:var(--muted); font-family:var(--font-mono); font-size:12px;}
+.cert-sublink:hover{color:var(--accent-ink);}
+@media (max-width:760px){
+  .cert-list{grid-template-columns:1fr;}
+  .cert-list li:nth-child(2){border-top:1px solid var(--rule);}
+  .cert-sublist{grid-template-columns:1fr;}
+  .cert-sublist li:nth-child(2){border-top:1px solid var(--rule);}
+}
 
-  /* ---------- RESPONSIVE ---------- */
-  @media (max-width: 860px){
-    .board-grid{grid-template-columns:1fr;}
-    .proj-grid{grid-template-columns:1fr;}
-    .cert-list{grid-template-columns:1fr;}
-    .stack-table td.k{width:150px; font-size:11px;}
-    nav.links{display:none;}
-    .nav-toggle{display:block;}
-    .contact-grid{align-items:flex-start;}
-  }
-  @media (max-width: 860px){
-    nav.links.open{
-      display:flex; position:absolute; top:100%; left:0; right:0;
-      background:var(--panel); border-bottom:1px solid var(--line);
-      flex-direction:column; padding:16px 28px; gap:16px;
-    }
-  }
+/* ---------- EDUCATION ---------- */
+.edu-item{display:flex; justify-content:space-between; gap:20px; padding:20px 0; border-top:1px solid var(--rule);}
+.edu-item:first-child{border-top:none;}
+.edu-degree{font-family:var(--font-display); font-size:17px; font-weight:600; margin:0 0 4px; overflow-wrap:anywhere;}
+.edu-school{color:var(--muted); font-size:14px; margin:0;}
+.edu-date{font-family:var(--font-mono); font-size:12px; color:var(--faint); white-space:nowrap;}
+
+/* ---------- FOOTER (Ft6 letter-close) ---------- */
+footer.foot-letter{padding:60px 0 44px;}
+.foot-letter__close{
+  font-family:var(--font-display); font-size:clamp(22px,3.2vw,32px);
+  line-height:1.4; max-width:52ch; margin:0 0 30px; font-weight:500;
+}
+.foot-letter__sign{font-weight:600; color:var(--accent-ink);}
+.foot-contacts{display:flex; flex-direction:column; gap:9px; font-family:var(--font-mono); font-size:14px; margin-bottom:30px;}
+.foot-contacts a{text-decoration:none; color:var(--muted); transition:color .15s ease; width:fit-content;}
+.foot-contacts a:hover{color:var(--accent-ink);}
+.foot-ps{font-family:var(--font-mono); font-size:12.5px; color:var(--faint); max-width:52ch; margin:0;}
+.foot-bottom{
+  margin-top:44px; padding-top:20px; border-top:1px solid var(--rule);
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  font-family:var(--font-mono); font-size:11.5px; color:var(--faint);
+}
+
+/* ---------- REVEAL ---------- */
+.reveal{opacity:0; transform:translateY(12px); transition:opacity .5s ease, transform .5s ease;}
+.reveal.in{opacity:1; transform:translateY(0);}
 </style>
 </head>
 <body>
+<a href="#top" class="skip-link">Skip to content</a>
 
-<header class="nav">
-  <div class="nav-inner">
-    <a href="#top" class="logo"><span class="dot"></span>NAMAN AGARWAL</a>
-    <nav class="links" id="navLinks">
-      <a href="#dashboards">Live Work</a>
-      <a href="#projects">Projects</a>
-      <a href="#stack">Stack</a>
-      <a href="#education">Education</a>
-      <a href="#contact">Contact</a>
-    </nav>
-    <button class="nav-toggle mono" id="navToggle" aria-label="Toggle menu">MENU</button>
-  </div>
-</header>
+<nav class="rail" aria-label="Section navigation">
+  <a href="#top" class="rail-mark"><span class="d"></span>NAMAN AGARWAL</a>
+  <ol class="rail-dots" id="railDots">
+    <li><a href="#dashboards"><span class="n mono">01</span><span class="dot"></span></a></li>
+    <li><a href="#projects"><span class="n mono">02</span><span class="dot"></span></a></li>
+    <li><a href="#stack"><span class="n mono">03</span><span class="dot"></span></a></li>
+    <li><a href="#focus"><span class="n mono">04</span><span class="dot"></span></a></li>
+    <li><a href="#certs"><span class="n mono">05</span><span class="dot"></span></a></li>
+    <li><a href="#education"><span class="n mono">06</span><span class="dot"></span></a></li>
+    <li><a href="#contact"><span class="n mono">07</span><span class="dot"></span></a></li>
+  </ol>
+  <span class="rail-foot mono">TINSUKIA, ASSAM</span>
+</nav>
 
-<div class="ticker" aria-hidden="true">
-  <div class="ticker-track" id="tickerTrack"></div>
+<div class="topbar">
+  <a href="#top" class="wordmark"><span class="d"></span>NAMAN AGARWAL</a>
+  <button id="topbarToggle" aria-expanded="false" aria-controls="topbarMenu">MENU</button>
+</div>
+<div class="topbar-menu mono" id="topbarMenu">
+  <a href="#dashboards">01 · Live work</a>
+  <a href="#projects">02 · Projects</a>
+  <a href="#stack">03 · Stack</a>
+  <a href="#focus">04 · Focus</a>
+  <a href="#certs">05 · Certifications</a>
+  <a href="#education">06 · Education</a>
+  <a href="#contact">07 · Contact</a>
 </div>
 
 <main id="top">
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+
   <section class="hero wrap">
-    <p class="eyebrow">FINAL-YEAR CSE · SMIT, SIKKIM · BASED IN TINSUKIA, ASSAM</p>
+    <p class="eyebrow">CSE (AI/ML) GRADUATE · SMIT, SIKKIM · BASED IN TINSUKIA, ASSAM</p>
     <h1 class="hero-title">I train the model, then I ship the <span class="accent">live board</span> that puts it in front of real users.</h1>
-    <p class="hero-sub">Three production dashboards tracking FIFA World Cup 2026, IPL 2026, and Formula 1 — plus AI/ML systems ranging from a plant-disease diagnosis pipeline to a transformer-based audio captioning model. I own the full lifecycle: training, evaluation, and deployment.</p>
+    <p class="hero-sub">Three production dashboards tracking FIFA World Cup 2026, IPL 2026, and Formula 1 — plus AI/ML systems from a plant-disease diagnosis pipeline to a transformer-based audio captioning model. I own the full lifecycle: training, evaluation, deployment.</p>
     <div class="hero-cta">
-      <a href="#dashboards" class="btn btn-primary">See the live dashboards ↓</a>
+      <a href="#dashboards" class="btn btn-primary">Walk through the boards ↓</a>
       <a href="assets/Naman_Agarwal_Resume.docx" class="btn btn-ghost" download>Download résumé</a>
     </div>
   </section>
@@ -343,9 +363,9 @@
         <p class="section-label">01 · Independent projects</p>
         <h2 class="section-title">Currently live</h2>
       </div>
-      <p class="mono" style="color:var(--text-faint); font-size:13px; max-width:280px;">Deployed, public, and pulling real-time data right now.</p>
+      <p class="section-note mono">Deployed, public, pulling real-time data right now — click through to any of the three.</p>
     </div>
-    <div class="board-grid" id="boardGrid"></div>
+    <div class="board-list" id="boardList"></div>
   </section>
 
   <section id="projects" class="wrap reveal">
@@ -354,8 +374,9 @@
         <p class="section-label">02 · Academic work</p>
         <h2 class="section-title">Models &amp; systems</h2>
       </div>
+      <p class="section-note mono">Measured results, not self-ratings — every number below came off an actual eval run.</p>
     </div>
-    <div class="proj-grid" id="projGrid"></div>
+    <div class="proj-list" id="projList"></div>
   </section>
 
   <section id="stack" class="wrap reveal">
@@ -368,22 +389,35 @@
     <table class="stack-table" id="stackTable"></table>
   </section>
 
+  <section id="focus" class="wrap reveal">
+    <div class="section-head">
+      <div>
+        <p class="section-label">04 · Skill positioning</p>
+        <h2 class="section-title">Where I'm focused</h2>
+      </div>
+      <p class="section-note mono">Scored from what's actually shipped, certified, or benchmarked — not a vanity self-rating.</p>
+    </div>
+    <div class="radar-wrap">
+      <svg id="skillRadar" viewBox="0 0 640 380" role="img" aria-label="Skill positioning radar across AIML Engineering, Software Engineering, Data Analytics, and Cybersecurity"></svg>
+    </div>
+  </section>
+
   <section id="certs" class="wrap reveal">
     <div class="section-head">
       <div>
-        <p class="section-label">04 · Credentials</p>
+        <p class="section-label">05 · Credentials</p>
         <h2 class="section-title">Certifications</h2>
       </div>
-      <a href="https://drive.google.com/drive/folders/1hZy7EBAoqvCEONZk2vsjuUa9TGSYqz_b?usp=sharing" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:10px 18px; font-size:12px;">View all on Drive ↗</a>
+      <a href="https://drive.google.com/drive/folders/1hZy7EBAoqvCEONZk2vsjuUa9TGSYqz_b?usp=sharing" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:10px 16px; font-size:11.5px;">View all on Drive ↗</a>
     </div>
-    <p class="mono" style="color:var(--text-faint); font-size:13px; margin:-24px 0 24px;">Or click any certificate below to view it individually.</p>
+    <p class="section-note mono" style="margin:-24px 0 24px; max-width:none;">Or click any certificate below to open it directly.</p>
     <ul class="cert-list" id="certList"></ul>
   </section>
 
   <section id="education" class="wrap reveal">
     <div class="section-head">
       <div>
-        <p class="section-label">05 · Education</p>
+        <p class="section-label">06 · Education</p>
         <h2 class="section-title">Background</h2>
       </div>
     </div>
@@ -391,21 +425,18 @@
   </section>
 </main>
 
-<footer id="contact" class="wrap reveal">
-  <div class="contact-grid">
-    <div>
-      <h2 class="contact-title">Building something real-time?<br>Let's talk.</h2>
-      <p class="mono" style="color:var(--text-faint); font-size:13px;">English · Hindi · Assamese</p>
-    </div>
-    <div class="contact-links">
-      <a href="mailto:just.namanagarwal@gmail.com">just.namanagarwal@gmail.com</a>
-      <a href="tel:+918403873032">+91 84038 73032</a>
-      <a href="https://github.com/namanagr26" target="_blank" rel="noopener">github.com/namanagr26</a>
-      <a href="https://stoppageyukar1.netlify.app" target="_blank" rel="noopener">stoppageyukar1.netlify.app</a>
-      <a href="https://the-crease.netlify.app" target="_blank" rel="noopener">the-crease.netlify.app</a>
-      <a href="https://f1yukar1.netlify.app" target="_blank" rel="noopener">f1yukar1.netlify.app</a>
-    </div>
+<footer id="contact" class="wrap reveal foot-letter">
+  <p class="section-label" style="margin-bottom:16px;">07 · Get in touch</p>
+  <p class="foot-letter__close">Building something real-time? I'd like to hear about it.<br><span class="foot-letter__sign">— Naman</span></p>
+  <div class="foot-contacts">
+    <a href="mailto:just.namanagarwal@gmail.com">just.namanagarwal@gmail.com</a>
+    <a href="tel:+918403873032">+91 84038 73032</a>
+    <a href="https://github.com/namanagr26" target="_blank" rel="noopener">github.com/namanagr26</a>
+    <a href="https://stoppageyukar1.netlify.app" target="_blank" rel="noopener">stoppageyukar1.netlify.app</a>
+    <a href="https://the-crease.netlify.app" target="_blank" rel="noopener">the-crease.netlify.app</a>
+    <a href="https://f1yukar1.netlify.app" target="_blank" rel="noopener">f1yukar1.netlify.app</a>
   </div>
+  <p class="foot-ps">P.S. — English · Hindi · Assamese.</p>
   <div class="foot-bottom">
     <span>Tinsukia, Assam 786125</span>
     <span>© 2026 Naman Agarwal</span>
@@ -413,81 +444,114 @@
 </footer>
 
 <script>
-  // ---- Data ----
+  // ---- Data (unchanged content, sourced from the original site) ----
   const dashboards = [
     {
-      idx: "WC26",
-      name: "STOPPAGE",
+      idx: "WC26", name: "STOPPAGE",
       tag: "FIFA World Cup 2026 dashboard — all 104 matches, group tables, knockout bracket, real-time scores.",
       stack: ["JavaScript", "ESPN API", "Netlify"],
-      url: "https://stoppageyukar1.netlify.app"
+      url: "https://stoppageyukar1.netlify.app",
+      cap: "Group tables + knockout bracket, illustrative preview",
+      art: "bracket"
     },
     {
-      idx: "IPL26",
-      name: "The Crease",
+      idx: "IPL26", name: "The Crease",
       tag: "IPL 2026 dashboard — live countdown, squad cards, and pitch intelligence.",
       stack: ["JavaScript", "Playwright", "Netlify"],
-      url: "https://the-crease.netlify.app"
+      url: "https://the-crease.netlify.app",
+      cap: "Squad cards + pitch read, illustrative preview",
+      art: "squad"
     },
     {
-      idx: "F1",
-      name: "F1 Dashboard",
+      idx: "F1", name: "F1 Dashboard",
       tag: "Live standings and race results, pulled from the Jolpica API.",
       stack: ["JavaScript", "Jolpica API", "Netlify"],
-      url: "https://f1yukar1.netlify.app"
+      url: "https://f1yukar1.netlify.app",
+      cap: "Driver standings, illustrative preview",
+      art: "standings"
     }
   ];
 
   const projects = [
     {
-      name: "Plant Disease Diagnosis & Reporting System",
-      year: "2026 · Major Project",
-      stack: "Python · MobileNetV2 · Phi-3-mini LLM · Gradio · PlantVillage Dataset",
-      points: [
-        "Fine-tuned MobileNetV2 on PlantVillage to classify 38 plant disease categories with high accuracy.",
-        "Integrated Phi-3-mini-4k-instruct to auto-generate structured remediation reports for farmers.",
-        "Built the full pipeline from image upload to diagnosis report via a Gradio interface."
-      ]
-    },
-    {
       name: "Automated Audio Captioning System",
       year: "2025 · Mini Project",
       stack: "Python · ResNet18 · BERT · Log-Mel Spectrogram · Clotho v2 · Transformer",
-      points: [
-        "Transformer encoder-decoder: ResNet18 audio encoder + frozen BERT text encoder, 250 epochs on Clotho v2 (6,972 clips, 34,860 captions).",
-        "BLEU-4: 0.35, METEOR: 0.40, ROUGE-L F1: 0.38 on 1,045 test samples — beating rule- and template-based baselines.",
-        "Owned the full pipeline: spectrogram extraction, HDF5 storage, NLTK preprocessing, beam search decoding."
+      narrative: "Built a ResNet18 + frozen-BERT transformer encoder–decoder, trained end-to-end: spectrogram extraction, HDF5 storage, NLTK preprocessing, beam search decoding.",
+      specs: [
+        ["BLEU-4", "0.35"], ["METEOR", "0.40"], ["ROUGE-L F1", "0.38"],
+        ["Test samples", "1,045"], ["Training clips", "6,972"], ["Captions", "34,860"], ["Epochs", "250"]
+      ]
+    },
+    {
+      name: "Plant Disease Diagnosis & Reporting System",
+      year: "2026 · Major Project",
+      stack: "Python · MobileNetV2 · Phi-3-mini LLM · Gradio · PlantVillage Dataset",
+      narrative: "Paired a fine-tuned MobileNetV2 classifier with a Phi-3-mini LLM that auto-generates structured, farmer-ready treatment reports — photo to diagnosis to remediation, end to end, deployed via Gradio.",
+      specs: [
+        ["Disease classes", "38"], ["Dataset", "PlantVillage"], ["Classifier", "MobileNetV2"], ["Reporting", "Phi-3-mini LLM"]
       ]
     },
     {
       name: "Heart Disease Prediction System",
       year: "2024",
       stack: "Python · Deep Learning · UCI Hospital Dataset · Gradio",
-      points: [
-        "Trained a neural classifier on the UCI Hospital Dataset to detect cardiovascular disease risk.",
-        "Applied feature scaling and data cleaning to improve precision; deployed via Gradio for real-time output."
+      narrative: "Neural classification model on the UCI Hospital Dataset to flag cardiovascular disease risk, with feature scaling and data-cleaning pipelines, deployed via Gradio for real-time output.",
+      specs: [
+        ["Dataset", "UCI Hospital"], ["Task", "Binary risk classification"], ["Deployment", "Gradio"]
       ]
     },
     {
       name: "Employee Management System — Backend",
       year: "2023",
       stack: "Java · Spring Boot · MySQL",
-      points: [
-        "Designed a RESTful API layer and relational schema for employee records, authentication, and departments."
+      narrative: "RESTful API layer and relational database schema in Spring Boot to manage employee records, authentication, and departmental data, following standard SDLC practice.",
+      specs: [
+        ["Framework", "Spring Boot"], ["Database", "MySQL"], ["Layer", "REST API"]
       ]
     }
   ];
 
   const stack = [
     ["Languages", "Python, JavaScript, Java, C, C++, SQL"],
-    ["AI / Machine Learning", "TensorFlow, Keras, MobileNetV2, scikit-learn, Gradio, LLM integration (Phi-3, GPT-family)"],
+    ["AI / Machine Learning", "TensorFlow, Keras, MobileNetV2, scikit-learn, Deep Learning (CNNs, RNNs, LSTMs, Transformers), Gradio, LLM integration (Phi-3, GPT-family)"],
+    ["Cloud & MLOps", "Microsoft Azure AI Foundry, Azure AI workloads and machine learning deployment"],
+    ["Data Analytics & Visualization", "SQL, MySQL, Tableau, Power BI, dashboarding, KPI reporting, data cleaning, feature engineering"],
+    ["Cybersecurity", "SIEM tools, Intrusion Detection Systems (IDS), Linux, network security fundamentals, security risk assessment, Python for security automation"],
     ["Web & Backend", "HTML, CSS, JavaScript, Spring Boot, RESTful APIs, Netlify, ESPN API, Jolpica API"],
-    ["Data & Databases", "MySQL, Log-Mel Spectrogram, feature engineering, data cleaning & scaling"],
-    ["Tools & Practices", "Git, Playwright, Agile SDLC, VS Code"]
+    ["Tools & Practices", "Git (version control), Playwright, Agile SDLC, VS Code"]
+  ];
+
+  const skillRadar = [
+    { label: "AIML Engineering", value: 80 },
+    { label: "Software Engineering", value: 68 },
+    { label: "Data Analytics", value: 58 },
+    { label: "Cybersecurity", value: 45 }
   ];
 
   const certs = [
-    { name: "Machine Learning A-Z: AI, Python and R", src: "Udemy", file: "assets/certificates/Udemy_Machine_Learning_AZ.pdf" },
+    { name: "Anthropic Claude Developer Certifications", src: "Anthropic · 13 courses — MCP, agent skills, Claude API, Claude Code, multi-cloud (AWS Bedrock, Google Cloud), AI fluency", group: [
+      { name: "Claude 101", file: "assets/certificates/Anthropic_Claude_101.pdf" },
+      { name: "Claude Code in Action", file: "assets/certificates/Anthropic_Claude_Code_in_Action.pdf" },
+      { name: "Introduction to Model Context Protocol", file: "assets/certificates/Anthropic_Intro_to_MCP.pdf" },
+      { name: "Model Context Protocol: Advanced Topics", file: "assets/certificates/Anthropic_MCP_Advanced_Topics.pdf" },
+      { name: "Introduction to Agent Skills", file: "assets/certificates/Anthropic_Intro_to_Agent_Skills.pdf" },
+      { name: "Claude with the Anthropic API", file: "assets/certificates/Anthropic_Claude_with_Anthropic_API.pdf" },
+      { name: "Claude with Google Vertex AI", file: "assets/certificates/Anthropic_Claude_with_Google_Vertex_AI.pdf" },
+      { name: "Claude with Amazon Bedrock", file: "assets/certificates/Anthropic_Claude_with_Amazon_Bedrock.pdf" },
+      { name: "AI Fluency: Framework & Foundations", file: "assets/certificates/Anthropic_AI_Fluency_Framework_Foundations.pdf" },
+      { name: "AI Fluency for Students", file: "assets/certificates/Anthropic_AI_Fluency_for_Students.pdf" },
+      { name: "AI Fluency for Educators", file: "assets/certificates/Anthropic_AI_Fluency_for_Educators.pdf" },
+      { name: "AI Fluency for Nonprofits", file: "assets/certificates/Anthropic_AI_Fluency_for_Nonprofits.pdf" },
+      { name: "Teaching the AI Fluency Framework", file: "assets/certificates/Anthropic_Teaching_AI_Fluency_Framework.pdf" }
+    ]},
+    { name: "Google Cybersecurity Professional Certificate", src: "Google · 9 courses", file: "assets/certificates/Google_Cybersecurity_Professional_Certificate.pdf" },
+    { name: "Deep Learning Specialization", src: "DeepLearning.AI", file: "assets/certificates/Deep_Learning_Specialization.pdf" },
+    { name: "Microsoft Azure AI Essentials: Workloads and ML on Azure", src: "LinkedIn Learning", file: "assets/certificates/Microsoft_Azure_AI_Essentials.pdf" },
+    { name: "Tableau Essential Training 2026", src: "LinkedIn Learning", file: "assets/certificates/Tableau_Essential_Training_2026.pdf" },
+    { name: "Learning Power BI Desktop", src: "LinkedIn Learning", file: "assets/certificates/Learning_Power_BI_Desktop.pdf" },
+    { name: "Build AI Agents with GitHub Copilot", src: "Microsoft Press · LinkedIn Learning", file: "assets/certificates/Build_AI_Agents_with_GitHub_Copilot.pdf" },
+    { name: "Machine Learning A-Z: AI, Python and R", src: "Udemy · Industrial Training", file: "assets/certificates/Udemy_Machine_Learning_AZ.pdf" },
     { name: "TensorFlow for Deep Learning Bootcamp", src: "Udemy", file: "assets/certificates/Udemy_TensorFlow_Bootcamp.pdf" },
     { name: "Mastering DSA using C and C++", src: "Udemy", file: "assets/certificates/Udemy_Mastering_DSA_C_CPP.pdf" },
     { name: "Algorithmic Graph Theory and Data Structures", src: "NPTEL · IIT Kharagpur", file: "assets/certificates/NPTEL_Algorithmic_Graph_Theory.pdf", score: "58%" },
@@ -496,16 +560,8 @@
   ];
 
   const education = [
-    {
-      degree: "B.Tech — Computer Science & Engineering",
-      school: "Sikkim Manipal Institute of Technology, Majitar, Sikkim · Reg. No. 202200070",
-      date: "Expected July 2026"
-    },
-    {
-      degree: "Class XII — High School Diploma",
-      school: "Tinsukia English Academy, Tinsukia, Assam",
-      date: "March 2022"
-    }
+    { degree: "B.Tech — Computer Science & Engineering (AI/ML)", school: "Sikkim Manipal Institute of Technology, Majitar, Sikkim · Reg. No. 202200070", date: "Graduated July 2026" },
+    { degree: "Class XII — High School Diploma", school: "Tinsukia English Academy, Tinsukia, Assam", date: "March 2022" }
   ];
 
   const tickerStats = [
@@ -514,79 +570,157 @@
     ["METEOR", "0.40"], ["CAPTIONS", "34,860"]
   ];
 
+  // ---- Illustrative preview art (honest originals, not screenshots) ----
+  function boardArt(kind){
+    if (kind === "bracket") return `
+      <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="300" height="190" fill="none"/>
+        ${[0,1,2,3].map(i=>`<rect x="8" y="${8+i*24}" width="86" height="16" rx="2" fill="none" stroke="var(--rule-2)"/>`).join('')}
+        ${[0,1].map(i=>`<rect x="112" y="${16+i*40}" width="86" height="16" rx="2" fill="none" stroke="var(--rule-2)"/>`).join('')}
+        <rect x="216" y="36" width="76" height="16" rx="2" fill="none" stroke="var(--accent)"/>
+        <line x1="94" y1="16" x2="112" y2="16" stroke="var(--rule-2)"/>
+        <line x1="94" y1="40" x2="112" y2="40" stroke="var(--rule-2)"/>
+        <line x1="94" y1="64" x2="112" y2="64" stroke="var(--rule-2)"/>
+        <line x1="94" y1="88" x2="112" y2="88" stroke="var(--rule-2)"/>
+        <line x1="112" y1="16" x2="112" y2="40" stroke="var(--rule-2)"/>
+        <line x1="112" y1="64" x2="112" y2="88" stroke="var(--rule-2)"/>
+        <line x1="198" y1="24" x2="216" y2="24" stroke="var(--accent)"/>
+        <line x1="198" y1="64" x2="216" y2="64" stroke="var(--accent)"/>
+        <line x1="198" y1="24" x2="198" y2="64" stroke="var(--accent)"/>
+        <line x1="198" y1="44" x2="216" y2="44" stroke="var(--accent)"/>
+        ${[0,1,2,3,4,5].map(i=>`<rect x="8" y="${132+i*9}" width="${60+((i*37)%180)}" height="4" rx="2" fill="var(--rule)"/>`).join('')}
+      </svg>`;
+    if (kind === "squad") return `
+      <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+        ${[0,1,2,3].map(i=>`<rect x="${8+i*72}" y="10" width="62" height="82" rx="3" fill="none" stroke="var(--rule-2)"/>`).join('')}
+        ${[0,1,2,3].map(i=>`<circle cx="${39+i*72}" cy="40" r="14" fill="none" stroke="${i===1?'var(--accent)':'var(--rule-2)'}"/>`).join('')}
+        ${[0,1,2,3].map(i=>`<rect x="${17+i*72}" y="62" width="46" height="6" rx="2" fill="var(--rule)"/>`).join('')}
+        ${[0,1,2,3].map(i=>`<rect x="${17+i*72}" y="74" width="30" height="5" rx="2" fill="var(--rule)"/>`).join('')}
+        <rect x="8" y="108" width="284" height="1" fill="var(--rule)"/>
+        <path d="M8 178 L 60 150 L 116 165 L 172 140 L 228 158 L 292 130" fill="none" stroke="var(--accent)" stroke-width="2"/>
+        ${[8,60,116,172,228,292].map((x,i)=>`<circle cx="${x}" cy="${[178,150,165,140,158,130][i]}" r="3" fill="var(--accent)"/>`).join('')}
+      </svg>`;
+    return `
+      <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+        ${[172,140,118,96,80,66,54,44].map((h,i)=>`<rect x="${10+i*35}" y="${180-h}" width="24" height="${h}" fill="${i===0?'var(--accent)':'var(--rule)'}"/>`).join('')}
+        <line x1="6" y1="180" x2="294" y2="180" stroke="var(--rule-2)"/>
+        ${[0,1,2].map(i=>`<rect x="${10+i*35}" y="${188}" width="24" height="1" fill="none"/>`).join('')}
+      </svg>`;
+  }
+
   // ---- Render ----
   function renderTicker(){
     const track = document.getElementById('tickerTrack');
-    const items = tickerStats.map(([label, val]) =>
-      `<span class="ticker-item">${label} <span class="val">${val}</span></span>`
-    ).join('');
-    track.innerHTML = items + items; // duplicate for seamless loop
+    const items = tickerStats.map(([label, val]) => `<span class="ticker-item">${label} <span class="val">${val}</span></span>`).join('');
+    track.innerHTML = items + items;
   }
 
   function renderBoards(){
-    const grid = document.getElementById('boardGrid');
-    grid.innerHTML = dashboards.map(d => `
-      <a class="board-card" href="${d.url}" target="_blank" rel="noopener">
-        <div class="board-top">
-          <span class="live-badge"><span class="d"></span>LIVE</span>
-          <span class="board-index mono">${d.idx}</span>
-        </div>
-        <div>
+    const list = document.getElementById('boardList');
+    list.innerHTML = dashboards.map(d => `
+      <div class="board-row">
+        <div class="board-copy">
+          <div class="board-top">
+            <span class="live-badge"><span class="d"></span>LIVE</span>
+            <span class="board-idx mono">${d.idx}</span>
+          </div>
           <h3 class="board-name">${d.name}</h3>
           <p class="board-tag">${d.tag}</p>
+          <div class="board-stack">${d.stack.map(s => `<span class="chip">${s}</span>`).join('')}</div>
+          <a class="board-link" href="${d.url}" target="_blank" rel="noopener">Open dashboard →</a>
         </div>
-        <div class="board-stack">${d.stack.map(s => `<span class="chip">${s}</span>`).join('')}</div>
-        <span class="board-link">Open dashboard →</span>
-      </a>
+        <div>
+          <div class="board-frame">${boardArt(d.art)}</div>
+          <p class="board-frame-cap">${d.cap}</p>
+        </div>
+      </div>
     `).join('');
   }
 
   function renderProjects(){
-    const grid = document.getElementById('projGrid');
-    grid.innerHTML = projects.map(p => `
-      <div class="proj-card">
-        <div class="proj-top">
-          <h3 class="proj-name">${p.name}</h3>
-          <span class="proj-year mono">${p.year}</span>
+    const list = document.getElementById('projList');
+    list.innerHTML = projects.map(p => `
+      <div class="proj-block">
+        <div>
+          <div class="proj-top">
+            <h3 class="proj-name">${p.name}</h3>
+            <span class="proj-year mono">${p.year}</span>
+          </div>
+          <p class="proj-stack">${p.stack}</p>
+          <p class="proj-narrative">${p.narrative}</p>
         </div>
-        <p class="proj-stack">${p.stack}</p>
-        <ul class="proj-list">${p.points.map(pt => `<li>${pt}</li>`).join('')}</ul>
+        <table class="spec-sheet">
+          ${p.specs.map(([k,v]) => `<tr><td class="k">${k}</td><td class="v">${v}</td></tr>`).join('')}
+        </table>
       </div>
     `).join('');
   }
 
   function renderStack(){
-    const table = document.getElementById('stackTable');
-    table.innerHTML = stack.map(([k,v]) => `
-      <tr><td class="k">${k}</td><td class="v">${v}</td></tr>
-    `).join('');
+    document.getElementById('stackTable').innerHTML = stack.map(([k,v]) => `<tr><td class="k">${k}</td><td class="v">${v}</td></tr>`).join('');
+  }
+
+  function renderRadar(){
+    const svg = document.getElementById('skillRadar');
+    if (!svg) return;
+    const cx = 320, cy = 180, R = 125;
+    const n = skillRadar.length;
+    const angle = i => (Math.PI * 2 * i) / n - Math.PI / 2;
+    const pt = (i, r) => [cx + r * Math.cos(angle(i)), cy + r * Math.sin(angle(i))];
+    let parts = [];
+    [0.25, 0.5, 0.75, 1].forEach(f => {
+      const ring = Array.from({length: n}, (_, i) => pt(i, R * f).join(',')).join(' ');
+      parts.push(`<polygon points="${ring}" fill="none" stroke="var(--rule)" stroke-width="1"/>`);
+    });
+    for (let i = 0; i < n; i++) {
+      const [x, y] = pt(i, R);
+      parts.push(`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--rule)" stroke-width="1"/>`);
+    }
+    const dataPts = skillRadar.map((d, i) => pt(i, (d.value / 100) * R));
+    parts.push(`<polygon points="${dataPts.map(p => p.join(',')).join(' ')}" fill="var(--accent)" fill-opacity="0.14" stroke="var(--accent)" stroke-width="2"/>`);
+    dataPts.forEach(([x, y]) => parts.push(`<circle cx="${x}" cy="${y}" r="4" fill="var(--accent)"/>`));
+    skillRadar.forEach((d, i) => {
+      const [lx, ly] = pt(i, R + 34);
+      const anchor = Math.abs(Math.cos(angle(i))) < 0.2 ? 'middle' : (Math.cos(angle(i)) > 0 ? 'start' : 'end');
+      parts.push(`<text x="${lx}" y="${ly}" text-anchor="${anchor}" class="radar-label">${d.label}</text>`);
+      parts.push(`<text x="${lx}" y="${ly + 16}" text-anchor="${anchor}" class="radar-value">${d.value}</text>`);
+    });
+    svg.innerHTML = parts.join('');
   }
 
   function renderCerts(){
-    const list = document.getElementById('certList');
-    list.innerHTML = certs.map(c => {
-      const scoreTag = c.score ? `<span class="cert-score">${c.score}</span>` : '';
-      if (c.file) {
+    document.getElementById('certList').innerHTML = certs.map((c, i) => {
+      if (c.group) {
+        const rows = c.group.map(g => `<li><a class="cert-sublink" href="${g.file}" target="_blank" rel="noopener">${g.name}</a></li>`).join('');
         return `
-          <li>
-            <a class="cert-link" href="${c.file}" target="_blank" rel="noopener">
-              <span>${c.name} <span class="src">${c.src}</span></span>
-              ${scoreTag}
-            </a>
+          <li class="cert-group-item">
+            <button class="cert-group-toggle" data-idx="${i}" aria-expanded="false" aria-controls="certGroup${i}">
+              <span>${c.name}<span class="src">${c.src}</span></span>
+              <span class="chev mono" aria-hidden="true">+</span>
+            </button>
+            <ul class="cert-sublist" id="certGroup${i}">${rows}</ul>
           </li>`;
       }
-      return `<li class="no-link">${c.name} <span class="src">${c.src}</span></li>`;
+      const scoreTag = c.score ? `<span class="cert-score">${c.score}</span>` : '';
+      if (c.file) {
+        return `<li><a class="cert-link" href="${c.file}" target="_blank" rel="noopener"><span>${c.name}<span class="src">${c.src}</span></span>${scoreTag}</a></li>`;
+      }
+      return `<li class="no-link"><span>${c.name}<span class="src">${c.src}</span></span><span class="tag">no file on record</span></li>`;
     }).join('');
+
+    document.querySelectorAll('.cert-group-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        btn.nextElementSibling.classList.toggle('open');
+      });
+    });
   }
 
   function renderEducation(){
-    const el = document.getElementById('eduList');
-    el.innerHTML = education.map(e => `
+    document.getElementById('eduList').innerHTML = education.map(e => `
       <div class="edu-item">
-        <div>
-          <p class="edu-degree">${e.degree}</p>
-          <p class="edu-school">${e.school}</p>
-        </div>
+        <div><p class="edu-degree">${e.degree}</p><p class="edu-school">${e.school}</p></div>
         <span class="edu-date">${e.date}</span>
       </div>
     `).join('');
@@ -596,25 +730,43 @@
   renderBoards();
   renderProjects();
   renderStack();
+  renderRadar();
   renderCerts();
   renderEducation();
 
-  // ---- Mobile nav ----
-  document.getElementById('navToggle').addEventListener('click', () => {
-    document.getElementById('navLinks').classList.toggle('open');
+  // ---- Mobile menu ----
+  const topbarToggle = document.getElementById('topbarToggle');
+  const topbarMenu = document.getElementById('topbarMenu');
+  topbarToggle.addEventListener('click', () => {
+    const open = topbarMenu.classList.toggle('open');
+    topbarToggle.setAttribute('aria-expanded', open);
   });
-  document.querySelectorAll('.links a').forEach(a => a.addEventListener('click', () => {
-    document.getElementById('navLinks').classList.remove('open');
+  document.querySelectorAll('.topbar-menu a').forEach(a => a.addEventListener('click', () => {
+    topbarMenu.classList.remove('open');
+    topbarToggle.setAttribute('aria-expanded', 'false');
   }));
+
+  // ---- Rail active-section highlight ----
+  const railLinks = Array.from(document.querySelectorAll('#railDots a'));
+  const sectionIds = ['dashboards','projects','stack','focus','certs','education','contact'];
+  const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+  const railIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const link = railLinks.find(a => a.getAttribute('href') === '#' + entry.target.id);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        railLinks.forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  sections.forEach(s => railIO.observe(s));
 
   // ---- Scroll reveal ----
   const revealEls = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in');
-        io.unobserve(entry.target);
-      }
+      if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
     });
   }, { threshold: 0.12 });
   revealEls.forEach(el => io.observe(el));
