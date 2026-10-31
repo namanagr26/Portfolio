@@ -65,3 +65,15 @@ git push
 ```
 
 GitHub Pages redeploys automatically within a minute or two of every push to `main`.
+
+## "Ask about Naman" chatbot
+
+The floating **Ask about Naman** button opens an assistant that runs entirely in the visitor's browser: no API key, no server, no cost, and nothing typed is sent anywhere. It answers from the knowledge base in the `ASK-NAMAN ASSISTANT` block near the end of `index.html`:
+
+- `INTENTS` holds the topics (experience, projects, skills, contact, ...). Each has keywords `k`, phrases `p`, the answer `a` and follow-up chips `n`. Edit `a` to change what it says.
+- `SKILLS` answers "does he know X?" questions. Set `have:false` for tools he hasn't used yet, so the bot answers honestly.
+
+Test any question from the browser console with `__askNaman("does he know nmap?")`.
+
+To upgrade to a real LLM later, host a small serverless function (e.g. Netlify/Cloudflare) that keeps the API key secret, and replace `answerFor()` with a `fetch` to it. Never put an API key in this file: GitHub Pages serves it publicly.
+

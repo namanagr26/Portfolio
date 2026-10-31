@@ -310,6 +310,73 @@ footer.foot-letter{padding:60px 0 44px;}
 /* ---------- REVEAL ---------- */
 .reveal{opacity:0; transform:translateY(12px); transition:opacity .5s ease, transform .5s ease;}
 .reveal.in{opacity:1; transform:translateY(0);}
+
+/* ---------- ASK-NAMAN ASSISTANT ---------- */
+.chat-fab{
+  position:fixed; right:22px; bottom:22px; z-index:500;
+  display:flex; align-items:center; gap:9px;
+  font-family:var(--font-mono); font-size:13px; font-weight:600; letter-spacing:0.02em;
+  background:var(--accent); color:var(--paper); border:1px solid var(--accent);
+  padding:12px 18px; border-radius:24px; cursor:pointer;
+  box-shadow:0 8px 24px oklch(0% 0 0 / 0.35);
+  transition:transform .15s ease, background .15s ease;
+}
+.chat-fab:hover{transform:translateY(-2px); background:var(--accent-ink);}
+.chat-fab .d{width:7px; height:7px; border-radius:50%; background:var(--paper); animation:pulse 2s infinite; flex:none;}
+.chat-fab[aria-expanded="true"]{display:none;}
+
+.chat-panel{
+  position:fixed; right:22px; bottom:22px; z-index:501;
+  width:380px; max-width:calc(100vw - 32px); height:560px; max-height:calc(100vh - 44px);
+  background:var(--paper-2); border:1px solid var(--rule-2); border-radius:10px;
+  box-shadow:0 18px 48px oklch(0% 0 0 / 0.5);
+  display:none; flex-direction:column; overflow:hidden;
+}
+.chat-panel.open{display:flex;}
+.chat-head{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:14px 16px; border-bottom:1px solid var(--rule); background:var(--paper-3);
+}
+.chat-title{font-family:var(--font-mono); font-size:13px; font-weight:600; color:var(--ink); display:flex; align-items:center; gap:8px; margin:0;}
+.chat-title .d{width:7px; height:7px; border-radius:50%; background:var(--live); box-shadow:0 0 6px var(--live); flex:none;}
+.chat-sub{font-family:var(--font-mono); font-size:10.5px; color:var(--faint); margin:2px 0 0;}
+.chat-close{background:none; border:1px solid var(--rule-2); color:var(--muted); font-family:var(--font-mono); font-size:12px; padding:5px 9px; border-radius:var(--radius); cursor:pointer;}
+.chat-close:hover{color:var(--accent-ink); border-color:var(--accent-ink);}
+
+.chat-log{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; scroll-behavior:smooth;}
+.msg{max-width:88%; font-size:14px; line-height:1.5; padding:10px 13px; border-radius:10px; overflow-wrap:anywhere;}
+.msg.bot{align-self:flex-start; background:var(--paper); border:1px solid var(--rule); color:var(--ink-2); border-bottom-left-radius:3px;}
+.msg.user{align-self:flex-end; background:var(--accent); color:var(--paper); font-weight:500; border-bottom-right-radius:3px;}
+.msg.bot a{color:var(--accent-ink);}
+.msg.bot ul{margin:6px 0 0; padding-left:18px;}
+.msg.bot li{margin:3px 0;}
+.msg.bot b{color:var(--ink);}
+.msg.typing{color:var(--faint); font-family:var(--font-mono); font-size:12px;}
+
+.chat-chips{display:flex; flex-wrap:wrap; gap:6px; padding:0 16px 12px;}
+.chat-chip{
+  font-family:var(--font-mono); font-size:11.5px; color:var(--muted);
+  background:transparent; border:1px solid var(--rule-2); padding:6px 10px; border-radius:16px; cursor:pointer;
+}
+.chat-chip:hover{color:var(--accent-ink); border-color:var(--accent-ink);}
+
+.chat-form{display:flex; gap:8px; padding:12px; border-top:1px solid var(--rule); background:var(--paper-2);}
+.chat-input{
+  flex:1; min-width:0; background:var(--paper); color:var(--ink); border:1px solid var(--rule-2);
+  border-radius:var(--radius); padding:10px 12px; font-family:var(--font-body); font-size:14px;
+}
+.chat-input:focus{outline:2px solid var(--accent-ink); outline-offset:1px;}
+.chat-send{
+  font-family:var(--font-mono); font-size:12px; font-weight:600; background:var(--accent); color:var(--paper);
+  border:1px solid var(--accent); padding:0 14px; border-radius:var(--radius); cursor:pointer;
+}
+.chat-send:hover{background:var(--accent-ink);}
+.chat-foot{font-family:var(--font-mono); font-size:10px; color:var(--faint); text-align:center; padding:0 12px 10px;}
+
+@media (max-width:560px){
+  .chat-fab{right:14px; bottom:14px;}
+  .chat-panel{right:0; bottom:0; width:100vw; max-width:100vw; height:100dvh; max-height:100dvh; border-radius:0; border:none;}
+}
 </style>
 </head>
 <body>
@@ -456,6 +523,27 @@ footer.foot-letter{padding:60px 0 44px;}
     <span>© 2026 Naman Agarwal</span>
   </div>
 </footer>
+
+
+<!-- ---------- ASK-NAMAN ASSISTANT ---------- -->
+<button class="chat-fab" id="chatFab" aria-expanded="false" aria-controls="chatPanel"><span class="d"></span>Ask about Naman</button>
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Ask about Naman" aria-modal="false">
+  <div class="chat-head">
+    <div>
+      <p class="chat-title"><span class="d"></span>Ask about Naman</p>
+      <p class="chat-sub">Answers come from this portfolio's own data</p>
+    </div>
+    <button class="chat-close" id="chatClose" aria-label="Close chat">ESC ✕</button>
+  </div>
+  <div class="chat-log" id="chatLog" aria-live="polite"></div>
+  <div class="chat-chips" id="chatChips"></div>
+  <form class="chat-form" id="chatForm" autocomplete="off">
+    <label for="chatInput" class="skip-link">Your question</label>
+    <input class="chat-input" id="chatInput" type="text" maxlength="300" placeholder="e.g. Does he know Burp Suite?" />
+    <button class="chat-send" type="submit">Send</button>
+  </form>
+  <p class="chat-foot">Instant answers · no data leaves your browser</p>
+</div>
 
 <script>
   // ---- Data (unchanged content, sourced from the original site) ----
@@ -843,6 +931,245 @@ footer.foot-letter{padding:60px 0 44px;}
     });
   }, { threshold: 0.12 });
   revealEls.forEach(el => io.observe(el));
+
+  // ======================================================================
+  // ASK-NAMAN ASSISTANT — runs fully in the browser, no API key, no server.
+  // Answers come from the knowledge base below. To change an answer, edit
+  // the `a` (answer) text of the matching intent. To upgrade to a real LLM
+  // later, replace answerFor() with a call to your own serverless function.
+  // ======================================================================
+  (function(){
+    const EMAIL = 'just.namanagarwal@gmail.com';
+    const GH = 'https://github.com/namanagr26';
+    const L = (href, text) => `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
+    const IN = (id, text) => `<a href="#${id}" data-internal="1">${text}</a>`;
+
+    // ---- Intents: k = keywords (weight 1), p = phrases (weight 3), a = answer HTML, n = follow-up chips
+    const INTENTS = [
+      { id:'greet', k:['hi','hello','hey','hola','namaste','yo','sup'], p:['good morning','good evening','whats up'],
+        a:`Hi! I'm Naman's portfolio assistant. Ask me about his <b>experience</b>, <b>projects</b>, <b>skills</b>, <b>certifications</b>, or how to <b>contact</b> him.`,
+        n:['Tell me about Naman','Internship experience','Best projects','How to contact him'] },
+      { id:'about', k:['introduce','summary','overview','background','himself','bio'], p:['tell me about naman','tell me about him','about naman','who is naman','who is he','introduce yourself','tell me about yourself'],
+        a:`<b>Naman Agarwal</b> is a CSE (AI/ML) graduate (SMIT, July 2026) and a <b>Cybersecurity Intern at SkillOrbit</b> (Aug 2026 – present).<ul><li>Security: web application VAPT, network reconnaissance, and an intrusion detection tool he built from scratch</li><li>AI/ML: F1 race-outcome prediction, transformer audio captioning, plant-disease diagnosis with an LLM</li><li>Shipping: three live public dashboards (FIFA World Cup 2026, IPL 2026, F1), built and deployed solo</li></ul>He's targeting <b>AI/ML, Cybersecurity, Forward Deployed Engineer</b> and <b>Data Analytics</b> roles.`,
+        n:['Internship experience','Best projects','What roles is he looking for?','Download resume'] },
+      { id:'experience', k:['experience','internship','intern','skillorbit','work','job','employment','worked','company','career'], p:['work experience','current job','where does he work','skill orbit'],
+        a:`<b>Cybersecurity Intern — SkillOrbit</b> (Aug 2026 – present). Three projects so far:<ul><li><b>Network Traffic Analyzer</b> — packet capture + intrusion detection (~138K packets, 4 threat types). ${L('https://github.com/namanagr26/Network-Traffic-Analyzer','GitHub')}</li><li><b>Web Application VAPT</b> — exploited 8 OWASP vulnerability classes with Burp Suite; 34-page report</li><li><b>External Reconnaissance</b> — Shodan + Nmap assessment of scanme.nmap.org; 15-page report</li></ul>Details: ${IN('experience','Experience section')}.`,
+        n:['Network Traffic Analyzer','VAPT work','Recon project','Best projects'] },
+      { id:'nta', k:['traffic','analyzer','analyser','packet','packets','scapy','intrusion','ids','capstone','sniffer','monitoring','detection','anomaly'], p:['network traffic','traffic analyzer','intrusion detection','packet capture'],
+        a:`<b>Network Traffic Analyzer</b> (SkillOrbit capstone) — Python, Scapy, SQLite, Pandas, Streamlit, Plotly.<ul><li>Captures live packets and stores them in SQLite (~138K packets / 460 MB in lab testing)</li><li>Detects traffic spikes, port scans, SSH/RDP brute-force attempts and unknown-IP connections</li><li>Uses median + MAD statistics so attack traffic can't inflate its own threshold</li><li>Live dashboard + one-click HTML/CSV security reports</li></ul>${L('https://github.com/namanagr26/Network-Traffic-Analyzer','View code + screenshots on GitHub')}`,
+        n:['VAPT work','Cybersecurity skills','Best projects'] },
+      { id:'vapt', k:['vapt','pentest','pentesting','penetration','owasp','portswigger','sqli','injection','xss','csrf','cors','ssrf','idor','bola','bopla','exploit','exploited','vulnerability','vulnerabilities','hacking','ethical'], p:['web security','penetration testing','sql injection','web application','bug bounty'],
+        a:`<b>Web Application VAPT</b> (SkillOrbit) — Kali Linux + Burp Suite on PortSwigger Web Security Academy labs.<ul><li>Exploited and verified <b>8 vulnerability classes</b>: SQL injection, XSS, CSRF, CORS misconfiguration, IDOR/BOLA, BOPLA/mass assignment, race condition, SSRF</li><li>8 / 8 labs solved</li><li>Wrote a 34-page professional report: payloads, reproduction steps, impact, severity, remediation</li></ul>`,
+        n:['Recon project','Network Traffic Analyzer','Cybersecurity skills'] },
+      { id:'recon', k:['recon','reconnaissance','enumeration','scanme','osint','footprinting','scanning','ports','whatweb'], p:['network scanning','port scanning','information gathering'],
+        a:`<b>External Reconnaissance &amp; Enumeration</b> (SkillOrbit) — an authorized, non-destructive assessment of scanme.nmap.org.<ul><li>Shodan for discovery; Nmap for service/version and OS detection plus NSE scripts; WhatWeb and curl for HTTP</li><li>Turned scan output into a prioritized attack-surface table (4 open TCP ports)</li><li>Investigated an unidentified tcpwrapped service on port 31337</li><li>15-page report</li></ul>`,
+        n:['VAPT work','Network Traffic Analyzer','Cybersecurity skills'] },
+      { id:'projects', k:['projects','project','built','build','portfolio','samples','made','created','developed','showcase','best'], p:['what has he built','best project','show me projects','his work'],
+        a:`Highlights:<ul><li><b>Network Traffic Analyzer</b> — intrusion detection tool (internship) ${L('https://github.com/namanagr26/Network-Traffic-Analyzer','GitHub')}</li><li><b>STOPPAGE</b> — live FIFA World Cup 2026 dashboard, all 104 matches ${L('https://stoppageyukar1.netlify.app','live')}</li><li><b>F1 Performance Analytics Suite</b> — race predictor, telemetry coach, race summariser</li><li><b>Automated Audio Captioning</b> — ResNet18 + BERT transformer, BLEU-4 0.35</li><li><b>Plant Disease Diagnosis</b> — MobileNetV2 + Phi-3 LLM reports</li></ul>See ${IN('dashboards','Live work')} and ${IN('projects','Projects')}.`,
+        n:['Live dashboards','F1 projects','AI/ML projects','Network Traffic Analyzer'] },
+      { id:'dashboards', k:['dashboard','dashboards','live','stoppage','fifa','worldcup','football','soccer','ipl','crease','cricket','netlify','deployed','production'], p:['world cup','live dashboard','the crease','f1 dashboard'],
+        a:`Three <b>live public dashboards</b>, each built and deployed solo:<ul><li><b>STOPPAGE</b> — FIFA World Cup 2026: all 104 matches, group tables, knockout bracket, zero manual updates (ESPN API) ${L('https://stoppageyukar1.netlify.app','open')}</li><li><b>The Crease</b> — IPL 2026: live countdown, squad cards, pitch intelligence via Playwright ${L('https://the-crease.netlify.app','open')}</li><li><b>F1 Dashboard</b> — live standings and results (Jolpica API) ${L('https://f1yukar1.netlify.app','open')}</li></ul>`,
+        n:['F1 projects','Best projects','Web skills'] },
+      { id:'f1', k:['f1','formula','race','racing','predictor','prediction','telemetry','coach','summariser','summarizer','fastf1','motorsport','driver'], p:['formula 1','formula one','race predictor','driver coach','race outcome'],
+        a:`<b>F1 Performance Analytics Suite</b> — Python, scikit-learn, FastF1, Streamlit.<ul><li><b>Race Outcome Predictor</b> — gradient boosting on multi-season data, leak-free rolling form features, chronologically held-out test season, evaluated by MAE and Spearman ρ ${L('https://github.com/namanagr26/Race-Outcome-Predictor','GitHub')}</li><li><b>Driver Coach</b> — aligns two laps on a shared distance grid and turns braking/throttle deltas into coaching notes ${L('https://github.com/namanagr26/f1-driver-coach','GitHub')}</li><li><b>Race Summariser</b> — pit strategy, overtakes and race-control events ${L('https://github.com/namanagr26/f1-race-summariser','GitHub')}</li></ul>Plus the live ${L('https://f1yukar1.netlify.app','F1 dashboard')}.`,
+        n:['AI/ML projects','Live dashboards','Data analytics experience'] },
+      { id:'audio', k:['audio','captioning','caption','clotho','bleu','meteor','spectrogram','resnet','bert','transformer','sound'], p:['audio captioning'],
+        a:`<b>Automated Audio Captioning System</b> — a ResNet18 + frozen-BERT transformer encoder-decoder trained on Clotho v2 (6,972 clips, 34,860 captions, 250 epochs, beam search).<br>Results on 1,045 test samples: <b>BLEU-4 0.35 · METEOR 0.40 · ROUGE-L F1 0.38</b>, beating rule-based and template-based baselines.`,
+        n:['Plant disease project','AI/ML skills','Best projects'] },
+      { id:'plant', k:['plant','plants','disease','agriculture','farmer','farmers','crop','plantvillage','mobilenet','mobilenetv2','phi','phi3'], p:['plant disease','phi 3'],
+        a:`<b>Plant Disease Diagnosis &amp; Reporting System</b> (major project) — a fine-tuned <b>MobileNetV2</b> classifier (38 disease classes, PlantVillage) paired with a <b>Phi-3-mini LLM</b> that writes structured, farmer-ready treatment reports. Photo → diagnosis → remediation, deployed with Gradio.`,
+        n:['Audio captioning project','AI/ML skills','Best projects'] },
+      { id:'heart', k:['heart','cardio','cardiovascular','uci','medical','healthcare','health'], p:['heart disease'],
+        a:`<b>Heart Disease Prediction System</b> — a neural classifier on the UCI Hospital Dataset that flags cardiovascular risk, with feature scaling and data cleaning, deployed via Gradio for real-time output.`,
+        n:['AI/ML projects','Best projects'] },
+      { id:'ems', k:['employee','ems','backend','crud'], p:['employee management','spring boot project','java project','backend project'],
+        a:`<b>Employee Management System — Backend</b> — Java, Spring Boot, MySQL. A RESTful API layer and relational schema for employee records, authentication and departmental data, following object-oriented design and standard SDLC practice.`,
+        n:['Web skills','Best projects','What roles is he looking for?'] },
+      { id:'skills', k:['skills','skill','stack','tech','technologies','technology','tools','expertise','proficient','strengths','strong','good'], p:['tech stack','what can he do','what is he good at','programming languages'],
+        a:`<ul><li><b>Languages:</b> Python, SQL, JavaScript, Java, C, C++</li><li><b>AI/ML:</b> TensorFlow, Keras, scikit-learn, deep learning (CNNs, RNNs, LSTMs, Transformers), gradient boosting, LLM integration</li><li><b>Cybersecurity:</b> Burp Suite, Nmap, Shodan, Kali Linux, Scapy, OWASP Top 10, intrusion detection, SIEM</li><li><b>Data &amp; BI:</b> Pandas, SQL, Tableau, Power BI, Streamlit, Plotly</li><li><b>Backend &amp; Web:</b> Spring Boot, REST APIs, JavaScript, Netlify</li><li><b>Cloud:</b> Azure AI Foundry</li></ul>Ask about a specific tool, e.g. "Does he know Tableau?"`,
+        n:['Does he know Python?','Cybersecurity skills','AI/ML skills','Certifications'] },
+      { id:'ai', k:['ai','ml','machine','learning','deep','neural','llm','llms','genai','generative','models','nlp','vision'], p:['machine learning','deep learning','artificial intelligence','ai ml','ai projects','ml projects'],
+        a:`<b>AI/ML work:</b><ul><li>Audio captioning transformer — BLEU-4 0.35, METEOR 0.40</li><li>Plant-disease diagnosis — MobileNetV2 + Phi-3 LLM reports</li><li>F1 race-outcome predictor — gradient boosting, held-out season evaluation</li><li>Heart disease risk classifier</li></ul>Tools: TensorFlow, Keras, scikit-learn, LLM integration (Phi-3, GPT-family), Gradio, Azure AI Foundry. Certified: DeepLearning.AI Deep Learning Specialization, plus Anthropic courses on MCP, agents and the Claude API.`,
+        n:['Audio captioning project','Plant disease project','F1 projects','Certifications'] },
+      { id:'security', k:['cybersecurity','security','cyber','soc','infosec','siem','blue','red','defensive','offensive'], p:['cyber security','security experience','security skills','cybersecurity skills'],
+        a:`<b>Cybersecurity:</b> Naman covers both sides.<ul><li><b>Offensive:</b> web application VAPT (8 OWASP classes, Burp Suite) and external recon (Shodan, Nmap)</li><li><b>Defensive:</b> built a packet-capture intrusion detection tool (Scapy, SQLite, Streamlit)</li><li><b>Certified:</b> Google Cybersecurity Professional Certificate (SIEM, IDS, Linux, Python automation)</li></ul>`,
+        n:['VAPT work','Network Traffic Analyzer','Recon project'] },
+      { id:'data', k:['data','analytics','analyst','analysis','bi','visualization','visualisation','insights','reporting','kpi','excel'], p:['data analytics','data analyst','business intelligence','power bi','data analytics experience'],
+        a:`<b>Data &amp; analytics:</b><ul><li>Analysed ~138K network packets with Pandas/SQLite into a live Streamlit/Plotly dashboard (internship)</li><li>Multi-season F1 analytics with FastF1 — prediction, telemetry, strategy</li><li>Three live data dashboards fed by sports APIs</li></ul>Tools: SQL, Pandas, NumPy, Tableau, Power BI, Streamlit, Plotly. Certified in Tableau and Power BI (LinkedIn Learning).`,
+        n:['F1 projects','Live dashboards','Does he know SQL?'] },
+      { id:'fde', k:['fde','forward','deployed','fullstack','generalist','shipping','ship','ships','solutions'], p:['forward deployed','full stack','end to end','forward deployed engineer'],
+        a:`For <b>Forward Deployed Engineer</b> roles, Naman's strength is shipping complete systems end to end: three live dashboards taken solo from data pipeline to production, ML models delivered as usable apps (Gradio, Streamlit), a Java/Spring Boot backend, and security assessments written up as client-ready reports.`,
+        n:['Live dashboards','Internship experience','How to contact him'] },
+      { id:'roles', k:['roles','role','looking','open','opportunity','opportunities','position','positions','hiring','hire','available','availability','seeking','fit'], p:['open to work','what roles','looking for','is he available','what kind of job'],
+        a:`Naman is open to <b>AI/ML Engineer</b>, <b>Cybersecurity</b> (SOC, VAPT, security analyst), <b>Forward Deployed Engineer</b> and <b>Data Analytics</b> roles. For availability, notice period or location preferences, email him at ${L('mailto:'+EMAIL, EMAIL)}.`,
+        n:['How to contact him','Download resume','Tell me about Naman'] },
+      { id:'certs', k:['certification','certifications','certificate','certificates','certified','course','courses','coursera','nptel','udemy','credential','credentials'], p:['google cybersecurity','deep learning specialization'],
+        a:`Key certifications:<ul><li>Google Cybersecurity Professional Certificate (9 courses)</li><li>Deep Learning Specialization — DeepLearning.AI</li><li>Anthropic: 13 courses — MCP, agent skills, Claude API, Claude Code, AWS Bedrock, Google Vertex AI</li><li>Microsoft Azure AI Essentials; Build AI Agents with GitHub Copilot</li><li>Tableau and Power BI (LinkedIn Learning)</li><li>NPTEL: Human Computer Interaction (90%, Elite), Graph Theory, Responsible &amp; Safe AI</li></ul>Open any certificate in ${IN('certs','Certifications')}.`,
+        n:['AI/ML skills','Cybersecurity skills','Education'] },
+      { id:'education', k:['education','degree','college','university','btech','graduate','graduated','graduation','smit','sikkim','manipal','school','study','studied','cgpa','gpa','qualification'], p:['b tech','where did he study'],
+        a:`<ul><li><b>B.Tech, Computer Science &amp; Engineering (AI/ML)</b> — Sikkim Manipal Institute of Technology, graduated July 2026</li><li><b>Class XII</b> — Tinsukia English Academy, Assam, March 2022</li></ul>`,
+        n:['Internship experience','Certifications','Best projects'] },
+      { id:'contact', k:['contact','email','mail','phone','call','reach','connect','number','message','touch','linkedin'], p:['get in touch','how to contact','how can i reach','contact him'],
+        a:`<ul><li>Email: ${L('mailto:'+EMAIL, EMAIL)}</li><li>Phone: ${L('tel:+918403873032','+91 84038 73032')}</li><li>GitHub: ${L(GH,'github.com/namanagr26')}</li></ul>Email is the best way to reach him.`,
+        n:['Download resume','What roles is he looking for?'] },
+      { id:'resume', k:['resume','cv','biodata','pdf','download'], p:['download resume','his resume'],
+        a:`Here's his resume: ${L('assets/Naman_Agarwal_Resume.pdf','Download PDF')} (2 pages, updated Oct 2026).`,
+        n:['How to contact him','Internship experience'] },
+      { id:'github', k:['github','code','repo','repos','repository','source','git'], p:['source code'],
+        a:`All his code is on ${L(GH,'github.com/namanagr26')}. Good places to start: ${L('https://github.com/namanagr26/Network-Traffic-Analyzer','Network-Traffic-Analyzer')} and ${L('https://github.com/namanagr26/Race-Outcome-Predictor','Race-Outcome-Predictor')}.`,
+        n:['Best projects','Tell me about Naman'] },
+      { id:'location', k:['location','located','where','city','based','live','lives','assam','tinsukia','india','relocate','relocation','remote','onsite','hybrid'], p:['where is he','where does he live','open to relocate'],
+        a:`Naman is based in <b>Tinsukia, Assam, India</b>. For relocation, remote or hybrid preferences, ask him directly at ${L('mailto:'+EMAIL, EMAIL)}.`,
+        n:['What roles is he looking for?','How to contact him'] },
+      { id:'spoken', k:['speak','speaks','spoken','hindi','english','assamese'], p:['languages does he speak','what languages'],
+        a:`He speaks <b>English, Hindi and Assamese</b>. (For programming languages: Python, SQL, JavaScript, Java, C and C++.)`,
+        n:['Tell me about Naman','Skills'] },
+      { id:'thanks', k:['thanks','thank','thx','ty','great','cool','awesome','nice','ok','okay','bye','goodbye'], p:['thank you'],
+        a:`Happy to help! If you'd like to talk to Naman directly, email ${L('mailto:'+EMAIL, EMAIL)}.`,
+        n:['Download resume','Best projects'] },
+    ];
+
+    // ---- Skill index: "does he know X?" (have:false = honestly not on the profile)
+    const SKILLS = [
+      { n:['python'], have:true, e:'his main language — the Traffic Analyzer, F1 suite, audio captioning, plant-disease and heart-disease projects are all Python.' },
+      { n:['java'], have:true, e:'used for the Employee Management System backend with Spring Boot; also listed in his core languages.' },
+      { n:['javascript','js'], have:true, e:'all three live dashboards (STOPPAGE, The Crease, F1) are built in JavaScript.' },
+      { n:['sql','mysql','sqlite','postgres','postgresql','database','databases'], have:true, e:'MySQL schema design in the Employee Management System, SQLite storage in the Network Traffic Analyzer, and SQL in his Google Cybersecurity certificate.' },
+      { n:['c++','cpp'], have:true, e:'listed in his languages, with a Udemy course on data structures and algorithms in C/C++.' },
+      { n:['tensorflow','keras'], have:true, e:'used for his deep learning projects, with a TensorFlow Bootcamp certificate and the DeepLearning.AI specialization.' },
+      { n:['scikit','sklearn','scikitlearn'], have:true, e:'used for the F1 Race Outcome Predictor (gradient boosting, permutation importance).' },
+      { n:['pytorch','torch'], have:false, e:'his deep learning work so far is in TensorFlow/Keras, which covers the same concepts.' },
+      { n:['llm','llms','phi','gpt','openai','prompt','prompting'], have:true, e:'integrated a Phi-3-mini LLM into the Plant Disease project to generate treatment reports; also certified in the Claude API, MCP and agent skills.' },
+      { n:['claude','anthropic','mcp','agents','agentic'], have:true, e:'certified through 13 Anthropic courses — MCP, agent skills, Claude API, Claude Code, AWS Bedrock and Google Vertex AI.' },
+      { n:['langchain','rag','vector','pinecone','embeddings'], have:false, e:'his LLM work so far is direct model integration (Phi-3) plus Anthropic coursework on MCP and agents.' },
+      { n:['gradio'], have:true, e:'deployed the plant-disease and heart-disease models with Gradio.' },
+      { n:['streamlit'], have:true, e:'built the Network Traffic Analyzer dashboard and the F1 analytics apps in Streamlit.' },
+      { n:['plotly'], have:true, e:'charts in the Traffic Analyzer dashboard, its HTML reports and the F1 apps.' },
+      { n:['pandas','numpy'], have:true, e:'used throughout — traffic analysis in the internship and feature engineering for the F1 predictor.' },
+      { n:['tableau'], have:true, e:'certified through Tableau Essential Training 2026 (LinkedIn Learning).' },
+      { n:['powerbi','power bi'], have:true, e:'certified through Learning Power BI Desktop (LinkedIn Learning).' },
+      { n:['burp','burpsuite'], have:true, e:'his main tool in the internship VAPT project — exploited 8 vulnerability classes on PortSwigger labs.' },
+      { n:['nmap'], have:true, e:'used in the internship recon project (service/version and OS detection, NSE scripts), and to test his own intrusion detection tool.' },
+      { n:['shodan'], have:true, e:'used for target discovery in the internship reconnaissance project.' },
+      { n:['kali','linux'], have:true, e:'his internship work runs on Kali Linux; Linux is also part of his Google Cybersecurity certificate.' },
+      { n:['scapy'], have:true, e:'the packet capture engine of his Network Traffic Analyzer.' },
+      { n:['wireshark'], have:false, e:'he does packet capture and analysis in Python with Scapy (Network Traffic Analyzer).' },
+      { n:['metasploit'], have:false, e:'his offensive work is web application VAPT with Burp Suite plus Nmap-based reconnaissance.' },
+      { n:['siem','splunk'], have:true, e:'SIEM tools are covered in his Google Cybersecurity Professional Certificate.' },
+      { n:['owasp'], have:true, e:'exploited 8 OWASP Top 10 / OWASP API Top 10 vulnerability classes in his internship VAPT project.' },
+      { n:['spring','springboot'], have:true, e:'built the Employee Management System backend with Spring Boot and MySQL.' },
+      { n:['rest','restful','api','apis'], have:true, e:'designed REST APIs in Spring Boot and integrated ESPN, Jolpica and FastF1 APIs in his dashboards.' },
+      { n:['html','css','frontend'], have:true, e:'built all three live dashboards and this portfolio site.' },
+      { n:['react','angular','vue','nextjs'], have:false, e:'his web work so far uses plain JavaScript, HTML and CSS (three live dashboards).' },
+      { n:['azure'], have:true, e:'certified in Microsoft Azure AI Essentials (Azure AI Foundry, ML workloads).' },
+      { n:['aws','bedrock'], have:true, e:'certified coursework: Claude with Amazon Bedrock (Anthropic). Not yet used in a project.' },
+      { n:['gcp','vertex','google cloud'], have:true, e:'certified coursework: Claude with Google Vertex AI (Anthropic). Not yet used in a project.' },
+      { n:['docker','kubernetes','k8s'], have:false, e:'his deployments so far use Netlify continuous deployment and Gradio/Streamlit apps.' },
+      { n:['git'], have:true, e:'all projects are version-controlled on GitHub.' },
+      { n:['playwright'], have:true, e:'used for pitch-intelligence scraping in The Crease (IPL 2026) dashboard.' },
+      { n:['netlify'], have:true, e:'hosts his three live dashboards with continuous deployment.' },
+      { n:['fastf1'], have:true, e:'the data source for his F1 predictor, driver coach and race summariser.' },
+    ];
+
+    const DISPLAY = { python:'Python', java:'Java', javascript:'JavaScript', sql:'SQL', 'c++':'C++', tensorflow:'TensorFlow / Keras',
+      scikit:'scikit-learn', pytorch:'PyTorch', llm:'LLMs', claude:'Claude / MCP / agents', langchain:'LangChain / RAG', gradio:'Gradio',
+      streamlit:'Streamlit', plotly:'Plotly', pandas:'Pandas / NumPy', tableau:'Tableau', powerbi:'Power BI', burp:'Burp Suite', nmap:'Nmap',
+      shodan:'Shodan', kali:'Kali Linux', scapy:'Scapy', wireshark:'Wireshark', metasploit:'Metasploit', siem:'SIEM', owasp:'OWASP',
+      spring:'Spring Boot', rest:'REST APIs', html:'HTML / CSS', react:'React / JS frameworks', azure:'Azure', aws:'AWS', gcp:'Google Cloud',
+      docker:'Docker / Kubernetes', git:'Git', playwright:'Playwright', netlify:'Netlify', fastf1:'FastF1' };
+
+    // ---- Matching
+    const STOP = new Set('a an the is are was were be does do did he his him naman s it of to in on for and or with what whats which who how can could would will about any me tell give show please i you your know knows has have had any much many some there this that at by from as'.split(' '));
+    const norm = t => t.toLowerCase().replace(/c\+\+/g,'cpp').replace(/power\s*bi/g,'powerbi').replace(/spring\s*boot/g,'springboot').replace(/burp\s*suite/g,'burpsuite').replace(/scikit[\s-]*learn/g,'scikitlearn').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+    function lev(a,b){ if (Math.abs(a.length-b.length)>1) return 2; const d=[...Array(b.length+1).keys()];
+      for (let i=1;i<=a.length;i++){ let prev=d[0]; d[0]=i; for (let j=1;j<=b.length;j++){ const tmp=d[j]; d[j]=Math.min(d[j]+1,d[j-1]+1,prev+(a[i-1]===b[j-1]?0:1)); prev=tmp; } } return d[b.length]; }
+    const wordHit = (w, k) => w===k || (k.length>=5 && w.length>=5 && lev(w,k)<=1) || (k.length>=6 && w.startsWith(k.slice(0,6)));
+
+    const GENERIC = new Set(['projects','experience','skills']);
+    function scoreIntent(it, text, words){
+      let s = GENERIC.has(it.id) ? -0.5 : 0;
+      for (const p of it.p) if (text.includes(p)) s += 3;
+      for (const w of words) if (it.k.some(k => wordHit(w,k))) s += 1;
+      return s;
+    }
+    function skillHits(text, words){
+      const raw = ' '+text+' ';
+      return SKILLS.filter(sk => sk.n.some(n => n.includes(' ') ? raw.includes(' '+n+' ') : words.some(w => w===n || (n.length>=6 && lev(w,n)<=1))));
+    }
+
+    function answerFor(q){
+      const text = norm(q);
+      const all = text.split(' ');
+      const words = all.filter(w => !STOP.has(w));
+      if (!text) return null;
+      const scored = INTENTS.map(it => ({it, s:scoreIntent(it, text, all)})).sort((a,b)=>b.s-a.s);
+      const best = scored[0];
+      const skills = skillHits(text, all);
+      const asksAbility = /\b(know|knows|use|uses|used|experience|familiar|work with|worked with|skilled|proficient|can he|does he)\b/.test(text);
+
+      // Specific tool questions ("does he know Burp Suite?") -> skill answer
+      if (skills.length && (asksAbility || best.s < 3 || ['skills','ai','data','security'].includes(best.it.id))) {
+        const parts = skills.slice(0,4).map(sk => {
+          const nice = DISPLAY[sk.n[0]] || (sk.n[0][0].toUpperCase()+sk.n[0].slice(1));
+          return sk.have ? `<li><b>Yes — ${nice}:</b> ${sk.e}</li>` : `<li><b>${nice}:</b> not on his profile yet — ${sk.e}</li>`;
+        });
+        return { a:`<ul style="padding-left:16px;margin:0">${parts.join('')}</ul>`, n:['Skills','Best projects','How to contact him'] };
+      }
+      if (best.s >= 0.5) return best.it;
+      return null;
+    }
+
+    // ---- UI
+    const fab = document.getElementById('chatFab'), panel = document.getElementById('chatPanel');
+    const log = document.getElementById('chatLog'), chips = document.getElementById('chatChips');
+    const form = document.getElementById('chatForm'), input = document.getElementById('chatInput');
+    let started = false;
+    const CHIP_Q = { 'Skills':'What are his skills?', 'Live dashboards':'Tell me about the live dashboards', 'Web skills':'Does he know JavaScript and REST APIs?',
+      'Cybersecurity skills':'What cybersecurity experience does he have?', 'AI/ML skills':'What AI/ML work has he done?', 'AI/ML projects':'What AI/ML work has he done?',
+      'Data analytics experience':'What data analytics experience does he have?', 'VAPT work':'Tell me about his VAPT work', 'Recon project':'Tell me about the recon project',
+      'Network Traffic Analyzer':'Tell me about the Network Traffic Analyzer', 'Plant disease project':'Tell me about the plant disease project',
+      'Audio captioning project':'Tell me about audio captioning', 'Education':'What is his education?', 'F1 projects':'Tell me about the F1 race predictor and driver coach' };
+
+    function add(role, html){
+      const m = document.createElement('div'); m.className = 'msg ' + role;
+      if (role === 'user') m.textContent = html; else m.innerHTML = html;
+      log.appendChild(m); log.scrollTop = log.scrollHeight; return m;
+    }
+    function setChips(list){
+      chips.innerHTML = '';
+      list.forEach(label => { const b = document.createElement('button'); b.type='button'; b.className='chat-chip'; b.textContent=label;
+        b.addEventListener('click', () => ask(CHIP_Q[label] || label)); chips.appendChild(b); });
+    }
+    function ask(q){
+      q = q.trim(); if (!q) return;
+      add('user', q); input.value = '';
+      const t = add('bot typing', 'typing…');
+      setTimeout(() => {
+        t.remove();
+        const r = answerFor(q);
+        if (r) { add('bot', r.a); setChips(r.n || []); }
+        else {
+          add('bot', `I'm not sure about that one. I can answer questions about Naman's <b>experience</b>, <b>projects</b>, <b>skills</b>, <b>certifications</b> and <b>contact details</b> — or you can email him at ${L('mailto:'+EMAIL, EMAIL)}.`);
+          setChips(['Tell me about Naman','Best projects','Skills','How to contact him']);
+        }
+      }, 380);
+    }
+    function open(){
+      panel.classList.add('open'); fab.setAttribute('aria-expanded','true');
+      if (!started){ started = true; add('bot', INTENTS[0].a); setChips(['Tell me about Naman','Internship experience','Best projects','Does he know Python?','Cybersecurity skills','How to contact him']); }
+      setTimeout(() => input.focus(), 50);
+    }
+    function close(){ panel.classList.remove('open'); fab.setAttribute('aria-expanded','false'); fab.focus(); }
+    fab.addEventListener('click', open);
+    document.getElementById('chatClose').addEventListener('click', close);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
+    form.addEventListener('submit', e => { e.preventDefault(); ask(input.value); });
+    log.addEventListener('click', e => {
+      const a = e.target.closest('a[data-internal]');
+      if (a && window.matchMedia('(max-width:560px)').matches) close();
+    });
+    window.__askNaman = answerFor; // handy for testing in the console
+  })();
 </script>
 </body>
 </html>
