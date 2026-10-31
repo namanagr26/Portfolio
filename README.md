@@ -6,17 +6,11 @@ A single-page portfolio site: live sports dashboards, AI/ML projects, stack, and
 
 ```
 portfolio/
-├── index.html                    # the entire site (HTML + CSS + JS)
+├── index.html                     # the entire site (HTML + CSS + JS)
 └── assets/
-    ├── Naman_Agarwal_Resume.docx # downloadable résumé (linked from the hero button)
+    ├── Naman_Agarwal_Resume.pdf   # downloadable résumé (linked from the hero button)
     └── certificates/              # certificate PDFs, linked from the Certifications section
-        ├── NPTEL_Algorithmic_Graph_Theory.pdf
-        ├── NPTEL_Human_Computer_Interaction.pdf
-        ├── NPTEL_Responsible_Safe_AI_Systems.pdf
-        ├── Udemy_Machine_Learning_AZ.pdf
-        └── Udemy_TensorFlow_Bootcamp.pdf
 ```
-
 
 ## Run it locally
 
@@ -62,7 +56,7 @@ If you own a domain, add it under **Settings → Pages → Custom domain**, and 
 
 ## Updating content later
 
-All copy — dashboard cards, academic projects, skills, certifications, education — lives in the `<script>` block at the bottom of `index.html`, in plain JS arrays (`dashboards`, `projects`, `stack`, `certs`, `education`, `tickerStats`). Edit the values there; no HTML templating knowledge needed. Then:
+All copy — dashboard cards, academic projects, skills, certifications, education — lives in the `<script>` block at the bottom of `index.html`, in plain JS arrays (`experience`, `dashboards`, `projects`, `stack`, `certs`, `education`, `tickerStats`). Edit the values there; no HTML templating knowledge needed. Then:
 
 ```bash
 git add index.html
